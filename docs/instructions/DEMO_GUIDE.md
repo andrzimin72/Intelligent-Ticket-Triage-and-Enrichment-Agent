@@ -72,170 +72,113 @@ python scripts/demo.py --cleanup
 Duration: 2-3 minutes
 
 a) What it shows:
-
--Creating two demo tenants (Acme Corp and Beta Inc)
-
--Each tenant gets isolated resources
-
--Custom branding and settings
-
--Tenant listing and status
+- Creating two demo tenants (Acme Corp and Beta Inc)
+- Each tenant gets isolated resources
+- Custom branding and settings
+- Tenant listing and status
 
 b) Key points to emphasize:
-
--Complete data isolation between tenants
-
--Separate Bedrock Agent instances
-
--Custom branding per tenant
-
--Scalable architecture
+- Complete data isolation between tenants
+- Separate Bedrock Agent instances
+- Custom branding per tenant
+- Scalable architecture
 
 ### Section 2: AI Ticket Triage
 
 Duration: 2-3 minutes
 
 a) What it shows:
-
--Incoming ticket simulation
-
--AI categorization with confidence scores
-
--Automatic routing recommendations
-
--Feedback loop for continuous improvement
+- Incoming ticket simulation
+- AI categorization with confidence scores
+- Automatic routing recommendations
+- Feedback loop for continuous improvement
 
 b) Key points to emphasize:
-
--90%+ accuracy in categorization
-
--Reduces triage time by 70%
-
--Learns from technician feedback
-
--Integrates with ConnectWise
+- 90%+ accuracy in categorization
+- Reduces triage time by 70%
+- Learns from technician feedback
+- Integrates with ConnectWise
 
 ### Section 3: IT Concierge Agent
 
 Duration: 3-4 minutes
 
 a) What it shows:
-
--Natural language conversation in Teams
-
--Account status checks
-
--Conference room booking
-
--Audit trail logging
+- Natural language conversation in Teams
+- Account status checks
+- Conference room booking
+- Audit trail logging
 
 b) Key points to emphasize:
-
--24/7 availability
-
--Natural language understanding
-
--Integrates with Microsoft Graph
-
--Full audit compliance
+- 24/7 availability
+- Natural language understanding
+- Integrates with Microsoft Graph
+- Full audit compliance
 
 ### Section 4: Secure Password Reset
 
 Duration: 2-3 minutes
 
 a) What it shows:
-
--Password reset request via chat
-
--Identity verification
-
--One-time link generation
-
--Security features
+- Password reset request via chat
+- Identity verification
+- One-time link generation
+- Security features
 
 b) Key points to emphasize:
-
--No passwords in chat
-
--256-bit secure tokens
-
--15-minute expiration
-
--Single-use enforcement
-
--Custom domain for trust
+- No passwords in chat
+- 256-bit secure tokens
+- 15-minute expiration
+- Single-use enforcement
+- Custom domain for trust
 
 ### Section 5: Customer Insights
 
 Duration: 2-3 minutes
 
 a) What it shows:
-
--Automated weekly analysis
-
--Trend identification
-
--Actionable recommendations
-
--Professional report format
+- Automated weekly analysis
+- Trend identification
+- Actionable recommendations
+- Professional report format
 
 b) Key points to emphasize:
-
--Proactive customer communication
-
--Builds trust and value
-
--Identifies issues before they escalate
-
--Customizable per tenant
+- Proactive customer communication
+- Builds trust and value
+- Identifies issues before they escalate
+- Customizable per tenant
 
 ### Section 6: Analytics & Monitoring
 
 Duration: 2-3 minutes
 
 a) What it shows:
-
--Executive summary
-
--Health trends over time
-
--Webhook delivery statistics
-
--CloudWatch dashboards
+- Executive summary
+- Health trends over time
+- Webhook delivery statistics
+- CloudWatch dashboards
 
 b) Key points to emphasize:
-
--Real-time monitoring
-
--Historical trend analysis
-
--Cost tracking
-
--Security event tracking
+- Real-time monitoring
+- Historical trend analysis
+- Cost tracking
+- Security event tracking
 
 ### Section 7: Tenant Portal
 
 Duration: 2-3 minutes
 
 a) What it shows:
-
--Self-service portal interface
-
--API endpoints
-
--Tenant configuration
-
--Audit log viewing
+- Self-service portal interface
+- API endpoints
+- Tenant configuration
+- Audit log viewing
 
 b) Key points to emphasize:
-
--Reduces support tickets
-
--Secure SSO authentication
-
--Real-time status updates
-
--Self-service configuration
+- Reduces support tickets
+- Secure SSO authentication
+- Real-time status updates
+- Self-service configuration
 
 ### Customizing the Demo
 
@@ -244,11 +187,8 @@ b) Key points to emphasize:
 To use real tenant data instead of demo data:
 
 a) Edit the demo script
-
 b) Replace DEMO_TENANT_1 and DEMO_TENANT_2 with actual tenant IDs
-
 c) Update branding and settings to match real tenants
-
 d) Use real ticket examples from your history
 
 #### Adding Your Own Scenarios
@@ -256,11 +196,8 @@ d) Use real ticket examples from your history
 You can add custom scenarios by:
 
 a) Creating new demo sections
-
 b) Using your actual ticket data
-
 c) Showcasing specific customer success stories
-
 d) Demonstrating unique integrations
 
 #### Recording the Demo
@@ -298,50 +235,35 @@ Windows:
 Track these metrics to measure demo effectiveness:
 
 a) Completion rate: % of demos completed without errors
-
 b) Engagement: Number of questions asked
-
 c) Follow-up requests: % requesting more information
-
 d) Conversion rate: % moving to pilot/production
-
 e) Demo duration: Average time to complete
-
 f) Technical issues: Number of issues encountered
 
 ### What the Demo Shows
 
-Multi-Tenant Architecture - Creates two isolated tenants
-
-Ticket Triage - Simulates AI processing a support ticket
-
-IT Concierge - Shows Teams conversation with agent
-
-Password Reset - Demonstrates secure reset flow
-
-Customer Insights - Shows weekly report generation
-
-Analytics - Displays metrics and dashboards
-
-Tenant Portal - Shows self-service interface
+a) Multi-Tenant Architecture - Creates two isolated tenants
+b) Ticket Triage - Simulates AI processing a support ticket
+c) IT Concierge - Shows Teams conversation with agent
+d) Password Reset - Demonstrates secure reset flow
+e) Customer Insights - Shows weekly report generation
+f) Analytics - Displays metrics and dashboards
+g) Tenant Portal - Shows self-service interface
 
 ### Customization Tips
 
 #### Use Real Data:
 
-Edit DEMO_TENANT_1 and DEMO_TENANT_2 to use actual tenant IDs
-
-Replace demo ticket examples with real ones from your history
-
-Update branding to match your actual customers
+- Edit DEMO_TENANT_1 and DEMO_TENANT_2 to use actual tenant IDs
+- Replace demo ticket examples with real ones from your history
+- Update branding to match your actual customers
 
 #### Add Scenarios:
 
-Create custom demo sections for specific use cases
-
-Add your unique integrations
-
-Showcase customer success stories
+- Create custom demo sections for specific use cases
+- Add your unique integrations
+- Showcase customer success stories
 
 #### Record the Demo:
 
@@ -370,14 +292,10 @@ export API_KEY=$(aws apigatewayv2 get-api-key --api-key $(terraform output -raw 
 
 #### This demo script will help you:
 
-Showcase the platform to stakeholders
-
-Train new team members
-
-Validate all components work together
-
-Create marketing materials
-
-Prepare for sales presentations
+- Showcase the platform to stakeholders
+- Train new team members
+- Validate all components work together
+- Create marketing materials
+- Prepare for sales presentations
 
 
