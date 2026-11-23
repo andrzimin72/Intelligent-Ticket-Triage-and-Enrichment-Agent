@@ -1,16 +1,14 @@
-# MSP AI Platform — Risk Register
+## MSP AI Platform — Risk Register
 
-**Document Owner:** Platform Engineering Team  
 **Version:** 1.0  
-**Last Updated:** 2026-11-22  
+**Last Updated:** 2026-11-23  
 **Review Frequency:** Monthly (or after major incidents/changes)  
-**Next Review Date:** 2026-12-22
 
 ---
 
-## Risk Scoring Methodology
+### Risk Scoring Methodology
 
-### Likelihood Scale (1-5)
+#### Likelihood Scale (1-5)
 | Score | Label | Description |
 |-------|-------|-------------|
 | 1 | Rare | May occur only in exceptional circumstances (<1% per year) |
@@ -19,7 +17,7 @@
 | 4 | Likely | Will probably occur in most circumstances (50-90% per year) |
 | 5 | Almost Certain | Expected to occur in most circumstances (>90% per year) |
 
-### Impact Scale (1-5)
+#### Impact Scale (1-5)
 | Score | Label | Description |
 |-------|-------|-------------|
 | 1 | Negligible | Minor inconvenience, no customer impact |
@@ -28,7 +26,7 @@
 | 4 | Major | Significant service degradation, customer-facing outage |
 | 5 | Catastrophic | Complete service outage, data breach, or regulatory violation |
 
-### Risk Level Matrix
+#### Risk Level Matrix
 | Likelihood \ Impact | 1 (Negligible) | 2 (Minor) | 3 (Moderate) | 4 (Major) | 5 (Catastrophic) |
 |---------------------|----------------|-----------|--------------|-----------|------------------|
 | **5 (Almost Certain)** | Medium (5) | High (10) | High (15) | Critical (20) | Critical (25) |
@@ -37,7 +35,7 @@
 | **2 (Unlikely)** | Low (2) | Low (4) | Medium (6) | Medium (8) | High (10) |
 | **1 (Rare)** | Low (1) | Low (2) | Low (3) | Medium (5) | Medium (5) |
 
-### Risk Levels
+#### Risk Levels
 - **Low (1-4):** Accept and monitor
 - **Medium (5-9):** Mitigate with standard controls
 - **High (10-15):** Requires active mitigation plan and management attention
@@ -45,21 +43,21 @@
 
 ---
 
-## Risk Categories
+### Risk Categories
 
-### SEC — Security Risks
-### OPS — Operational Risks
-### COM — Compliance Risks
-### TEC — Technical Risks
-### FIN — Financial Risks
-### BUS — Business Risks
-### TPR — Third-Party / Vendor Risks
+#### SEC — Security Risks
+#### OPS — Operational Risks
+#### COM — Compliance Risks
+#### TEC — Technical Risks
+#### FIN — Financial Risks
+#### BUS — Business Risks
+#### TPR — Third-Party / Vendor Risks
 
 ---
 
-## Risk Register
+### Risk Register
 
-### SEC-001: Cross-Tenant Data Leakage via LLM Context
+#### SEC-001: Cross-Tenant Data Leakage via LLM Context
 
 | Field | Value |
 |-------|-------|
@@ -78,7 +76,7 @@
 
 ---
 
-### SEC-002: JWT Token Compromise in Teams Bot
+#### SEC-002: JWT Token Compromise in Teams Bot
 
 | Field | Value |
 |-------|-------|
@@ -96,7 +94,7 @@
 
 ---
 
-### SEC-003: Password Reset Token Brute Force
+#### SEC-003: Password Reset Token Brute Force
 
 | Field | Value |
 |-------|-------|
@@ -114,7 +112,7 @@
 
 ---
 
-### SEC-004: Prompt Injection via Teams Messages
+#### SEC-004: Prompt Injection via Teams Messages
 
 | Field | Value |
 |-------|-------|
@@ -132,7 +130,7 @@
 
 ---
 
-### SEC-005: Secrets Manager Credential Exposure
+#### SEC-005: Secrets Manager Credential Exposure
 
 | Field | Value |
 |-------|-------|
@@ -150,7 +148,7 @@
 
 ---
 
-### SEC-006: Bedrock Agent Hallucination Leading to Wrong Actions
+#### SEC-006: Bedrock Agent Hallucination Leading to Wrong Actions
 
 | Field | Value |
 |-------|-------|
@@ -168,7 +166,7 @@
 
 ---
 
-### OPS-001: AOSS Collection Outage (Knowledge Base Unavailable)
+#### OPS-001: AOSS Collection Outage (Knowledge Base Unavailable)
 
 | Field | Value |
 |-------|-------|
@@ -186,7 +184,7 @@
 
 ---
 
-### OPS-002: DynamoDB Throttling Under Load
+#### OPS-002: DynamoDB Throttling Under Load
 
 | Field | Value |
 |-------|-------|
@@ -204,7 +202,7 @@
 
 ---
 
-### OPS-003: Lambda Cold Start Latency
+#### OPS-003: Lambda Cold Start Latency
 
 | Field | Value |
 |-------|-------|
@@ -222,7 +220,7 @@
 
 ---
 
-### OPS-004: SQS Dead Letter Queue Overflow
+#### OPS-004: SQS Dead Letter Queue Overflow
 
 | Field | Value |
 |-------|-------|
@@ -240,7 +238,7 @@
 
 ---
 
-### OPS-005: Bedrock API Throttling / Quota Exhaustion
+#### OPS-005: Bedrock API Throttling / Quota Exhaustion
 
 | Field | Value |
 |-------|-------|
@@ -258,7 +256,7 @@
 
 ---
 
-### OPS-006: Graph API Rate Limiting
+#### OPS-006: Graph API Rate Limiting
 
 | Field | Value |
 |-------|-------|
@@ -276,7 +274,7 @@
 
 ---
 
-### COM-001: Incomplete Data Deletion on Tenant Offboarding
+#### COM-001: Incomplete Data Deletion on Tenant Offboarding
 
 | Field | Value |
 |-------|-------|
@@ -294,7 +292,7 @@
 
 ---
 
-### COM-002: PII Exposure in Logs
+#### COM-002: PII Exposure in Logs
 
 | Field | Value |
 |-------|-------|
@@ -312,7 +310,7 @@
 
 ---
 
-### COM-003: Audit Log Gaps
+#### COM-003: Audit Log Gaps
 
 | Field | Value |
 |-------|-------|
@@ -330,7 +328,7 @@
 
 ---
 
-### COM-004: Cross-Border Data Transfer Issues
+#### COM-004: Cross-Border Data Transfer Issues
 
 | Field | Value |
 |-------|-------|
@@ -348,7 +346,7 @@
 
 ---
 
-### COM-005: Retention Policy Violations
+#### COM-005: Retention Policy Violations
 
 | Field | Value |
 |-------|-------|
@@ -366,7 +364,7 @@
 
 ---
 
-### TEC-001: Terraform State Corruption
+#### TEC-001: Terraform State Corruption
 
 | Field | Value |
 |-------|-------|
@@ -384,7 +382,7 @@
 
 ---
 
-### TEC-002: Python 3.13 Compatibility Issues
+#### TEC-002: Python 3.13 Compatibility Issues
 
 | Field | Value |
 |-------|-------|
@@ -402,7 +400,7 @@
 
 ---
 
-### TEC-003: Bedrock Model Deprecation
+#### TEC-003: Bedrock Model Deprecation
 
 | Field | Value |
 |-------|-------|
@@ -420,7 +418,7 @@
 
 ---
 
-### TEC-004: AWS Vendor Lock-in
+#### TEC-004: AWS Vendor Lock-in
 
 | Field | Value |
 |-------|-------|
@@ -438,7 +436,7 @@
 
 ---
 
-### TEC-005: Technical Debt from Rapid Development
+#### TEC-005: Technical Debt from Rapid Development
 
 | Field | Value |
 |-------|-------|
@@ -456,7 +454,7 @@
 
 ---
 
-### FIN-001: Unexpected AWS Cost Spikes
+#### FIN-001: Unexpected AWS Cost Spikes
 
 | Field | Value |
 |-------|-------|
@@ -474,7 +472,7 @@
 
 ---
 
-### FIN-002: AOSS Minimum Cost ($700/month)
+#### FIN-002: AOSS Minimum Cost ($700/month)
 
 | Field | Value |
 |-------|-------|
@@ -492,7 +490,7 @@
 
 ---
 
-### FIN-003: Bedrock Token Costs Scaling with Usage
+#### FIN-003: Bedrock Token Costs Scaling with Usage
 
 | Field | Value |
 |-------|-------|
@@ -510,7 +508,7 @@
 
 ---
 
-### BUS-001: Single Point of Failure in Engineering Team
+#### BUS-001: Single Point of Failure in Engineering Team
 
 | Field | Value |
 |-------|-------|
@@ -528,7 +526,7 @@
 
 ---
 
-### BUS-002: Tenant Onboarding Complexity Limiting Growth
+#### BUS-002: Tenant Onboarding Complexity Limiting Growth
 
 | Field | Value |
 |-------|-------|
@@ -546,7 +544,7 @@
 
 ---
 
-### BUS-003: Reputation Damage from Security Incident
+#### BUS-003: Reputation Damage from Security Incident
 
 | Field | Value |
 |-------|-------|
@@ -564,7 +562,7 @@
 
 ---
 
-### TPR-001: AWS Service Outage
+#### TPR-001: AWS Service Outage
 
 | Field | Value |
 |-------|-------|
@@ -582,7 +580,7 @@
 
 ---
 
-### TPR-002: Microsoft API Changes or Deprecation
+#### TPR-002: Microsoft API Changes or Deprecation
 
 | Field | Value |
 |-------|-------|
@@ -600,7 +598,7 @@
 
 ---
 
-### TPR-003: ConnectWise / NinjaOne API Downtime
+#### TPR-003: ConnectWise / NinjaOne API Downtime
 
 | Field | Value |
 |-------|-------|
@@ -618,9 +616,9 @@
 
 ---
 
-## Risk Summary Dashboard
+### Risk Summary Dashboard
 
-### By Risk Level
+#### By Risk Level
 | Level | Count | Percentage |
 |-------|-------|------------|
 | Critical (16-25) | 0 | 0% |
@@ -629,7 +627,7 @@
 | Low (1-4) | 6 | 20% |
 | **Total** | **30** | **100%** |
 
-### By Category
+#### By Category
 | Category | Count |
 |----------|-------|
 | Security (SEC) | 6 |
@@ -640,7 +638,7 @@
 | Business (BUS) | 3 |
 | Third-Party (TPR) | 3 |
 
-### Top 5 Risks (by score)
+#### Top 5 Risks (by score)
 1. **SEC-001** — Cross-tenant data leakage (Score: 10, High)
 2. **SEC-005** — Secrets Manager credential exposure (Score: 10, High)
 3. **COM-001** — Incomplete data deletion on offboarding (Score: 10, High)
@@ -652,36 +650,36 @@
 
 ---
 
-## Risk Response Strategies
+### Risk Response Strategies
 
-### Accept
+#### Accept
 Risks that are low severity or where mitigation costs exceed potential impact. Document the rationale.
 
-### Mitigate
+#### Mitigate
 Implement controls to reduce likelihood or impact. Most risks in this register use this strategy.
 
-### Transfer
+#### Transfer
 Shift risk to a third party (e.g., cyber insurance for security incidents, AWS SLA for outages).
 
-### Avoid
+#### Avoid
 Eliminate the risk by not performing the activity that creates it (rarely used in production).
 
 ---
 
-## Maintenance Process
+### Maintenance Process
 
-### Monthly Review
+#### Monthly Review
 - Risk owners update status of their assigned risks
 - New risks identified from incidents, changes, or audits are added
 - Closed risks are archived with resolution notes
 
-### Quarterly Review
+#### Quarterly Review
 - Full risk register review with engineering leadership
 - Risk scores recalibrated based on recent experience
 - Mitigation action progress tracked
 - Risk register shared with executive team
 
-### Annual Review
+#### Annual Review
 - Complete risk assessment refresh
 - External audit of risk management process
 - Update risk appetite and tolerance levels
@@ -689,8 +687,8 @@ Eliminate the risk by not performing the activity that creates it (rarely used i
 
 ---
 
-## Change Log
+### Change Log
 
 | Date | Version | Author | Changes |
 |------|---------|--------|---------|
-| 2026-11-22 | 1.0 | Platform Team | Initial risk register creation |
+| 2026-11-23 | 1.0 | Platform Team | Initial risk register creation |
