@@ -208,6 +208,7 @@ brew install asciinema
 asciinema rec demo.rec
 ./scripts/demo.sh
 # Upload to asciinema.org or convert to GIF
+```
 
 Linux:
 
@@ -216,12 +217,14 @@ Linux:
 sudo apt install asciinema
 asciinema rec demo.rec
 ./scripts/demo.sh
+```
 
 Windows:
 
 ```powershell
 # Using Windows Terminal recording
 # Or use a screen recording tool like OBS
+```
 
 #### Success Metrics
 
