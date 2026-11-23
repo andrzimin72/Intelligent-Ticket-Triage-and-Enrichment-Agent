@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Authenticating...</title>
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@2.0.3/dist/amazon-cognito-identity.min.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const success = await Auth.handleCallback();
+      if (success) {
+        window.location.href = '/';
+      } else {
+        document.body.innerHTML = '<h1>Login failed. Please try again.</h1>';
+      }
+    });
+  </script>
+</head>
+<body>
+  <h1>Authenticating...</h1>
+</body>
+</html>

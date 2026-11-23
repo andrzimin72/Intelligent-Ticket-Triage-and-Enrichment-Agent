@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Portal</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@2.0.3/dist/amazon-cognito-identity.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Tenant Portal</h1>
+    <nav id="nav" style="display: none;">
+      <a href="#" data-view="dashboard">Dashboard</a>
+      <a href="#" data-view="rules">Health Rules</a>
+      <a href="#" data-view="webhooks">Webhooks</a>
+      <a href="#" data-view="audit">Audit Log</a>
+      <a href="#" data-view="settings">Settings</a>
+      <button id="logout-btn">Logout</button>
+    </nav>
+  </header>
+
+  <main id="app">
+    <!-- Login view -->
+    <div id="login-view" class="view">
+      <div class="card">
+        <h2>Sign In</h2>
+        <p>Sign in with your Microsoft account to access your tenant portal.</p>
+        <button id="login-btn" class="btn-primary">Sign in with Microsoft</button>
+      </div>
+    </div>
+
+    <!-- Dashboard view -->
+    <div id="dashboard-view" class="view" style="display: none;">
+      <h2>Dashboard</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Tenant Status</h3>
+          <div id="tenant-status">Loading...</div>
+        </div>
+        <div class="card">
+          <h3>Health Score</h3>
+          <div id="health-score" class="big-number">--</div>
+          <div id="health-trend"></div>
+        </div>
+        <div class="card">
+          <h3>Resources</h3>
+          <div id="resources">Loading...</div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>Health Trend (Last 30 Days)</h3>
+        <canvas id="trend-chart" width="800" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Rules view -->
+    <div id="rules-view" class="view" style="display: none;">
+      <h2>Custom Health Rules</h2>
+      <p>Define custom rules to adjust your health score based on your specific needs.</p>
+      
+      <button id="add-rule-btn" class="btn-primary">+ Add Rule</button>
+      
+      <div id="rules-list" class="list"></div>
+      
+      <div id="rule-form" class="card" style="display: none;">
+        <h3>Create Rule</h3>
+        <form id="rule-form-element">
+          <label>Type:
+            <select id="rule-type" required>
+              <option value="threshold">Threshold</option>
+              <option value="presence">Presence</option>
+            </select>
+          </label>
+          <label>Metric:
+            <select id="rule-metric" required>
+              <option value="kb_documents">KB Documents</option>
+              <option value="audit_records">Audit Records</option>
+              <option value="conversations">Conversations</option>
+              <option value="health_score">Health Score</option>
+            </select>
+          </label>
+          <label id="operator-label">Operator:
+            <select id="rule-operator">
+              <option value="<">&lt;</option>
+              <option value="<=">&lt;=</option>
+              <option value=">">&gt;</option>
+              <option value=">=">&gt;=</option>
+              <option value="==">==</option>
+              <option value="!=">!=</option>
+            </select>
+          </label>
+          <label id="value-label">Value: <input type="number" id="rule-value" required></label>
+          <label>Impact (-30 to +30): <input type="number" id="rule-impact" min="-30" max="30" value="0" required></label>
+          <label>Description: <input type="text" id="rule-description" required></label>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Save</button>
+            <button type="button" id="cancel-rule-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Webhooks view -->
+    <div id="webhooks-view" class="view" style="display: none;">
+      <h2>Webhook Configurations</h2>
+      <p>Configure webhooks to receive notifications about status changes.</p>
+      
+      <button id="add-webhook-btn" class="btn-primary">+ Add Webhook</button>
+      
+      <div id="webhooks-list" class="list"></div>
+      
+      <div id="webhook-form" class="card" style="display: none;">
+        <h3>Create Webhook</h3>
+        <form id="webhook-form-element">
+          <label>Webhook ID: <input type="text" id="webhook-id" required placeholder="e.g., slack-ops"></label>
+          <label>Platform:
+            <select id="webhook-platform" required>
+              <option value="slack">Slack</option>
+              <option value="teams">Microsoft Teams</option>
+              <option value="pagerduty">PagerDuty</option>
+              <option value="generic">Generic</option>
+            </select>
+          </label>
+          <p class="info">Note: After creating the webhook, an administrator must add the URL to the webhook_urls secret.</p>
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Save</button>
+            <button type="button" id="cancel-webhook-btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Audit view -->
+    <div id="audit-view" class="view" style="display: none;">
+      <h2>Audit Log</h2>
+      <p>Recent activity on your tenant (last 100 entries).</p>
+      <div id="audit-list"></div>
+    </div>
+
+    <!-- Settings view -->
+    <div id="settings-view" class="view" style="display: none;">
+      <h2>Tenant Settings</h2>
+      <form id="settings-form">
+        <label>Display Name: <input type="text" id="setting-display-name"></label>
+        <label>Contact Email: <input type="email" id="setting-contact-email"></label>
+        <label>Timezone: <input type="text" id="setting-timezone" placeholder="e.g., America/New_York"></label>
+        <label>Company Name (branding): <input type="text" id="setting-company-name"></label>
+        <label>Primary Color: <input type="color" id="setting-primary-color"></label>
+        <label>Allowed Users (comma-separated emails): <textarea id="setting-allowed-users" rows="3"></textarea></label>
+        <button type="submit" class="btn-primary">Save Settings</button>
+      </form>
+    </div>
+  </main>
+
+  <div id="notification" class="notification" style="display: none;"></div>
+
+  <script src="config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
