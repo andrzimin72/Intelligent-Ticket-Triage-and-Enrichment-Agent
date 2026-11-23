@@ -1,0 +1,130 @@
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# =============================================================================
+# Terraform
+# =============================================================================
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# =============================================================================
+# Build Artifacts
+# =============================================================================
+.build/
+*.zip
+layers/*/package/
+
+# =============================================================================
+# Docker
+# =============================================================================
+# Docker containers and images (runtime artifacts)
+.dockerignore
+docker-compose.override.yml
+
+# Docker volumes and data
+/tmp/localstack/
+localstack-data/
+
+# Docker build cache
+.docker/
+
+# Docker secrets (if using Docker secrets)
+*.secret
+docker-secrets/
+
+# =============================================================================
+# IDE
+# =============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# =============================================================================
+# Environment & Secrets
+# =============================================================================
+.env
+.env.local
+*.pem
+*.key
+secrets.json
+terraform.tfvars.local
+
+# =============================================================================
+# Documentation Build
+# =============================================================================
+site/
+
+# =============================================================================
+# Logs
+# =============================================================================
+*.log
+logs/
+
+# =============================================================================
+# OS
+# =============================================================================
+Thumbs.db
+
+# =============================================================================
+# Testing
+# =============================================================================
+# LocalStack state
+localstack-init/ready.d/*.log
+
+# Test coverage (keep htmlcov/ tracked for CI badges)
+coverage.xml
+nosetests.xml
+
+# =============================================================================
+# Miscellaneous
+# =============================================================================
+# Backup files
+*.bak
+*.backup
+*~
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Node modules (if using any JS tooling)
+node_modules/
+package-lock.json
+yarn.lock
+
+# AWS credentials (should never be committed)
+.aws/
+credentials
+
+# SAM build (if using AWS SAM)
+.aws-sam/

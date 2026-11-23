@@ -1,0 +1,29 @@
+# =============================================================================
+# MSP Triage Infrastructure - Runtime Dependencies
+# =============================================================================
+# These dependencies are used by the Lambda functions at runtime.
+# They are packaged into Lambda layers or included in the deployment package.
+#
+# Python version: 3.13
+# AWS SDK version: boto3 1.35+
+# =============================================================================
+
+# AWS SDK
+boto3>=1.35.0,<2.0.0
+botocore>=1.35.0,<2.0.0
+
+# AWS X-Ray SDK for distributed tracing
+aws-xray-sdk>=2.14.0,<3.0.0
+
+# JWT handling (for Teams Bot Framework authentication)
+PyJWT>=2.9.0,<3.0.0
+cryptography>=43.0.0,<44.0.0
+
+# HTTP client (used in some Lambda functions for external API calls)
+urllib3>=2.0.0,<3.0.0
+
+# JSON schema validation (optional, for input validation)
+jsonschema>=4.23.0,<5.0.0
+
+# Date/time utilities
+python-dateutil>=2.9.0,<3.0.0
