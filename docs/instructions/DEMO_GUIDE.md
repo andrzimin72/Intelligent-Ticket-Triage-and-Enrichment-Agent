@@ -1,8 +1,8 @@
-# MSP AI Platform - Demonstration Guide
+## MSP AI Platform - Demonstration Guide
 
 This guide explains how to run and customize the platform demonstration.
 
-## Overview
+### Overview
 
 The demonstration showcases all core features of the MSP AI platform:
 
@@ -14,7 +14,7 @@ The demonstration showcases all core features of the MSP AI platform:
 6. **Analytics & Monitoring** - Platform-wide observability
 7. **Tenant Portal** - Self-service configuration
 
-## Prerequisites
+### Prerequisites
 
 Before running the demo:
 
@@ -25,7 +25,7 @@ Before running the demo:
 - [ ] Python 3.8+ (for Python version)
 - [ ] `requests` library (`pip install requests`)
 
-## Running the Demo
+### Running the Demo
 
 ### Bash Version
 
@@ -65,7 +65,7 @@ python scripts/demo.py --section 5
 python scripts/demo.py --cleanup
 ```
 
-## Demo Sections
+### Demo Sections
 
 ### Section 1: Multi-Tenant Onboarding
 
@@ -266,6 +266,7 @@ brew install asciinema  # macOS
 asciinema rec demo.rec
 ./scripts/demo.sh
 # Upload to asciinema.org or share the .rec file
+```
 
 ### Quick Start
 
@@ -280,6 +281,7 @@ export API_KEY=$(aws apigatewayv2 get-api-key --api-key $(terraform output -raw 
 
 # 3. Run the demo
 ./scripts/demo.sh
+```
 
 #### This demo script will help you:
 Showcase the platform to stakeholders
