@@ -1,8 +1,8 @@
-# MSP AI Platform - Architecture Documentation
+## MSP AI Platform - Architecture Documentation
 
 This document provides comprehensive architecture documentation using the C4 Model.
 
-## Table of Contents
+### Table of Contents
 
 1. [Overview](#overview)
 2. [C4 Model Diagrams](#c4-model-diagrams)
@@ -14,7 +14,7 @@ This document provides comprehensive architecture documentation using the C4 Mod
 8. [Security Architecture](#security-architecture)
 9. [Multi-Tenancy Model](#multi-tenancy-model)
 
-## Overview
+### Overview
 
 The MSP AI Platform is a multi-tenant, AI-powered IT service automation system built on AWS. It provides:
 
@@ -25,7 +25,7 @@ The MSP AI Platform is a multi-tenant, AI-powered IT service automation system b
 - **Self-service tenant portal** for MSP customers
 - **Comprehensive analytics** for platform operations
 
-### Key Design Principles
+#### Key Design Principles
 
 1. **Tenant Isolation** - Each MSP customer gets fully isolated resources
 2. **Security First** - Zero-trust architecture with audit trails
@@ -33,7 +33,7 @@ The MSP AI Platform is a multi-tenant, AI-powered IT service automation system b
 4. **Cost Optimization** - Model routing based on task complexity
 5. **Observability** - Comprehensive monitoring and alerting
 
-## C4 Model Diagrams
+### C4 Model Diagrams
 
 All diagrams are available in multiple formats:
 
@@ -43,7 +43,7 @@ All diagrams are available in multiple formats:
 | Mermaid | `c4-mermaid.md` | GitHub/GitLab rendering, easy sharing |
 | ASCII | Inline below | Quick reference, no tools needed |
 
-### Rendering PlantUML
+#### Rendering PlantUML
 
 ```bash
 # Install PlantUML
@@ -56,7 +56,7 @@ plantuml docs/architecture/c4-context.puml
 plantuml docs/architecture/c4-container.puml
 ```
 
-### Rendering Mermaid
+#### Rendering Mermaid
 
 Mermaid diagrams render automatically in:
 - GitHub Markdown
@@ -65,9 +65,9 @@ Mermaid diagrams render automatically in:
 - Obsidian
 - VS Code (with Mermaid extension)
 
-## System Context
+### System Context
 
-### Actors
+#### Actors
 
 | Actor | Description | Interactions |
 |-------|-------------|--------------|
@@ -77,7 +77,7 @@ Mermaid diagrams render automatically in:
 | **End User** | Employee of MSP customer | Chats with IT concierge |
 | **Customer IT Liaison** | Receives insights reports | Reviews weekly reports |
 
-### External Systems
+#### External Systems
 
 | System | Purpose | Integration |
 |--------|---------|-------------|
@@ -89,9 +89,9 @@ Mermaid diagrams render automatically in:
 | **Amazon SES** | Email delivery | SMTP |
 | **Slack / PagerDuty** | Alerting | Webhooks |
 
-## Container Architecture
+### Container Architecture
 
-### API Layer
+#### API Layer
 
 | Container | Technology | Responsibility |
 |-----------|-----------|----------------|
@@ -108,7 +108,7 @@ Mermaid diagrams render automatically in:
 | Per-Tenant Bedrock Agents | Amazon Bedrock | Isolated AI agents |
 | Knowledge Base | Bedrock KB + AOSS | Tenant-scoped RAG |
 
-### Core Lambda Functions
+#### Core Lambda Functions
 
 | Container | Responsibility |
 |-----------|----------------|
@@ -119,7 +119,7 @@ Mermaid diagrams render automatically in:
 | Triage Orchestrator | Routes tickets to appropriate model |
 | Triage Worker | Processes tickets with Bedrock |
 
-### Data Stores
+#### Data Stores
 
 | Store | Technology | Purpose |
 |-------|-----------|---------|
@@ -135,15 +135,15 @@ Mermaid diagrams render automatically in:
 | Digest Queue | SQS | Customer digest jobs |
 | Secrets | Secrets Manager | Tenant-scoped API credentials |
 
-## Component Details
+### Component Details
 
-### Tenant Onboarding API Components
+#### Tenant Onboarding API Components
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Tenant Onboarding API                                        │
+│ Tenant Onboarding API                                       │
 ├─────────────────────────────────────────────────────────────┤
-│ Request Router                                               │
+│ Request Router                                              │
 │  ├─ Onboarding Handler (POST /tenants)                      │
 │  │   ├─ Tenant Resolver                                     │
 │  │   └─ Hybrid Mode Logic                                   │
@@ -159,36 +159,36 @@ Mermaid diagrams render automatically in:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Teams Bot Adapter Components
+#### Teams Bot Adapter Components
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Teams Bot Adapter                                            │
+│ Teams Bot Adapter                                           │
 ├─────────────────────────────────────────────────────────────┤
 │ JWT Validator → Tenant Resolver → Email Resolver            │
-│                                                              │
-│ Message Processing:                                          │
+│                                                             │
+│ Message Processing:                                         │
 │  └─ Message Handler → Agent Invoker → Reply Sender          │
-│                                                              │
-│ Invoke Handling:                                             │
+│                                                             │
+│ Invoke Handling:                                            │
 │  ├─ Approval Handler                                        │
 │  └─ Feedback Handler                                        │
-│                                                              │
-│ Adaptive Cards:                                              │
+│                                                             │
+│ Adaptive Cards:                                             │
 │  ├─ Feedback Card Builder                                   │
 │  ├─ Approval Card Builder                                   │
 │  └─ Detailed Feedback Card                                  │
-│                                                              │
-│ Session Management:                                          │
+│                                                             │
+│ Session Management:                                         │
 │  ├─ Session Store                                           │
 │  ├─ Examples Loader (tenant-scoped)                         │
 │  └─ Audit Logger                                            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## Deployment Architecture
+### Deployment Architecture
 
-### AWS Services Used
+#### AWS Services Used
 
 | Service | Purpose | Count |
 |---------|---------|-------|
@@ -206,7 +206,7 @@ Mermaid diagrams render automatically in:
 | X-Ray | Tracing | Enabled on all Lambdas |
 | SES | Email | Verified senders |
 
-### Cost Breakdown (Estimated Monthly)
+#### Cost Breakdown (Estimated Monthly)
 
 | Component | Cost | Notes |
 |-----------|------|-------|
@@ -219,9 +219,9 @@ Mermaid diagrams render automatically in:
 | CloudWatch | $20-50 | Logs + metrics |
 | **Total** | **$1000-2100** | For small MSP |
 
-## Data Flow
+### Data Flow
 
-### Password Reset Flow
+#### Password Reset Flow
 
 ```
 User → Teams → Bot → Agent → Identity Tools → Graph API
@@ -243,7 +243,7 @@ User → Teams → Bot → Agent → Identity Tools → Graph API
                               Confirmation email sent
 ```
 
-### Ticket Triage Flow
+#### Ticket Triage Flow
 
 ```
 ConnectWise → Webhook → Orchestrator → SQS → Worker
@@ -271,42 +271,42 @@ ConnectWise → Webhook → Orchestrator → SQS → Worker
                               Record metrics
 ```
 
-## Security Architecture
+### Security Architecture
 
-### Authentication & Authorization
+#### Authentication & Authorization
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Authentication Layer                                         │
+│ Authentication Layer                                        │
 ├─────────────────────────────────────────────────────────────┤
 │ Bot Framework JWT Validation                                │
 │  └─ Validates Teams requests cryptographically              │
-│                                                              │
+│                                                             │
 │ Cognito + Entra ID Federation                               │
 │  └─ SSO for tenant portal                                   │
-│                                                              │
+│                                                             │
 │ API Keys                                                    │
 │  └─ For onboarding API (admin access)                       │
 └─────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────┐
-│ Authorization Layer                                          │
+│ Authorization Layer                                         │
 ├─────────────────────────────────────────────────────────────┤
 │ Tenant Isolation                                            │
 │  └─ All operations scoped by tenant_id                      │
-│                                                              │
+│                                                             │
 │ Server-Side Admin Verification                              │
 │  └─ Entra ID group membership checked server-side           │
-│                                                              │
+│                                                             │
 │ Two-Phase Approval                                          │
 │  └─ Write operations require out-of-band approval           │
-│                                                              │
+│                                                             │
 │ Scope Isolation                                             │
 │  └─ Users can only operate on their own accounts            │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Data Protection
+#### Data Protection
 
 - **Encryption at Rest**: All DynamoDB tables, S3 buckets, Secrets Manager
 - **Encryption in Transit**: TLS 1.2+ for all API calls
@@ -314,9 +314,9 @@ ConnectWise → Webhook → Orchestrator → SQS → Worker
 - **Audit Trail**: All operations logged with tamper-evident records
 - **PII Redaction**: Guardrails redact PII before processing
 
-## Multi-Tenancy Model
+### Multi-Tenancy Model
 
-### Isolation Levels
+#### Isolation Levels
 
 | Resource | Isolation Method |
 |----------|------------------|
@@ -327,21 +327,21 @@ ConnectWise → Webhook → Orchestrator → SQS → Worker
 | DynamoDB Tables | **Logical** - tenant_id partition key |
 | SQS Queues | **Shared** - Messages tagged with tenant_id |
 
-### Tenant Lifecycle
+#### Tenant Lifecycle
 
 ```
-┌────────────┐    ┌────────────┐    ┌────────────┐    ┌────────────┐
-│provisioning│───▶│   active   │───▶│deprovisioning│──▶│  deleted   │
-└────────────┘    └────────────┘    └────────────┘    └────────────┘
+┌────────────┐     ┌────────────┐     ┌──────────────┐    ┌────────────┐
+│provisioning│───▶│   active    │───▶│deprovisioning│──▶│   deleted   │
+└────────────┘     └────────────┘     └──────────────┘    └────────────┘
                         │                   │
                         │                   │ (preserve_data=true)
                         │                   ▼
                         │              ┌──────────┐
-                        └─────────────▶│ disabled │
+                        └────────────▶│ disabled │
                                        └──────────┘
 ```
 
-### Adding a New Tenant
+#### Adding a New Tenant
 
 1. Call `POST /tenants` with tenant details
 2. Onboarding API creates secrets, S3 folders, registry entry
@@ -350,14 +350,14 @@ ConnectWise → Webhook → Orchestrator → SQS → Worker
 5. Admin populates credentials in Secrets Manager
 6. Tenant can start using the platform
 
-## Additional Resources
+### Additional Resources
 
 - [Operations Runbook](../OPERATIONS_RUNBOOK.md)
 - [Security Model](../SECURITY.md)
 - [API Documentation](../API.md)
 - [Deployment Guide](../DEPLOYMENT.md)
 
-## Diagram Maintenance
+### Diagram Maintenance
 
 When updating architecture:
 
@@ -366,7 +366,3 @@ When updating architecture:
 3. Re-render diagrams: `plantuml docs/architecture/*.puml`
 4. Commit both source and rendered files
 5. Update this documentation if needed
-
-## Contact
-
-For architecture questions: architecture@yourmsp.com
