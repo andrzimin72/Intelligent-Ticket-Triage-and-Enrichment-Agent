@@ -1,13 +1,12 @@
-# MSP AI Platform — Operational Runbook
+## MSP AI Platform — Operational Runbook
 
 **Version:** 1.0  
-**Last Updated:** 2026-11-20  
-**Owner:** Platform Engineering Team  
+**Last Updated:** 2026-11-23  
 **Review Cycle:** Quarterly
 
 ---
 
-## Table of Contents
+### Table of Contents
 
 1. [Architecture Overview](#architecture-overview)
 2. [On-Call Procedures](#on-call-procedures)
@@ -21,41 +20,41 @@
 
 ---
 
-## Architecture Overview
+### Architecture Overview
 
-### System Components
+#### System Components
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        External Interfaces                       │
+│                        External Interfaces                      │
 ├─────────────────────────────────────────────────────────────────┤
 │  Microsoft Teams Bot  │  ConnectWise Webhook  │  Onboarding API │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      API Gateway + JWT Auth                      │
+│                      API Gateway + JWT Auth                     │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Lambda Functions                          │
+│                        Lambda Functions                         │
 ├─────────────────────────────────────────────────────────────────┤
-│  teams_bot  │  identity_tools  │  ticket_tools  │  ...         │
+│  teams_bot  │  identity_tools  │  ticket_tools  │  ...          │
 │  orchestrator  │  customer_digest_worker  │  customer_insights  │
 │  tenant_onboarding  │  status_history_snapshot  │  webhook_notif│
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                      Data & AI Services                          │
+│                      Data & AI Services                         │
 ├─────────────────────────────────────────────────────────────────┤
-│  DynamoDB  │  S3  │  Bedrock Agent  │  Bedrock KB (AOSS)       │
-│  Secrets Manager  │  SQS  │  SES  │  CloudWatch                │
+│  DynamoDB  │  S3  │  Bedrock Agent  │  Bedrock KB (AOSS)        │
+│  Secrets Manager  │  SQS  │  SES  │  CloudWatch                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### Critical Data Flows
+#### Critical Data Flows
 
 | Flow | Components | SLA |
 |------|-----------|-----|
@@ -67,22 +66,22 @@
 
 ---
 
-## On-Call Procedures
+### On-Call Procedures
 
-### On-Call Rotation
+#### On-Call Rotation
 
 - **Primary:** Platform Engineer (weekday business hours)
 - **Secondary:** Senior Engineer (after hours, weekends)
 - **Escalation:** Engineering Manager → CTO
 
-### On-Call Tools
+#### On-Call Tools
 
 - **Alerts:** PagerDuty (critical), Slack (warnings)
 - **Dashboards:** CloudWatch Operations Dashboard
 - **Logs:** CloudWatch Logs Insights
 - **State:** Terraform Cloud / S3 backend
 
-### First 15 Minutes of an Incident
+#### First 15 Minutes of an Incident
 
 1. **Acknowledge** the alert in PagerDuty
 2. **Assess** severity using the matrix below
@@ -91,7 +90,7 @@
 5. **Mitigate** using break-glass procedures if needed
 6. **Resolve** and document in post-mortem
 
-### Severity Matrix
+#### Severity Matrix
 
 | Severity | Criteria | Response Time | Example |
 |----------|----------|---------------|---------|
@@ -102,11 +101,11 @@
 
 ---
 
-## Break-Glass Emergency Procedures
+### Break-Glass Emergency Procedures
 
 ⚠️ **These procedures bypass normal security controls. Use ONLY in genuine emergencies. Every use requires a post-mortem within 24 hours.**
 
-### Procedure BG-1: Force-Reset a User's Password
+#### Procedure BG-1: Force-Reset a User's Password
 
 **When to use:** User is completely locked out, automated reset flow is broken, and user has a critical business need.
 
@@ -165,7 +164,7 @@ aws dynamodb put-item \
 - [ ] Post-mortem scheduled within 24 hours
 - [ ] Root cause of automated flow failure identified and fixed
 
-### Procedure BG-2: Disable a Compromised Tenant
+#### Procedure BG-2: Disable a Compromised Tenant
 
 **When to use:** Suspected tenant compromise, malicious activity detected.
 
@@ -207,7 +206,7 @@ aws secretsmanager rotate-secret \
   --secret-id dev/tenants/<TENANT_ID>/rmm
 ```
 
-### Procedure BG-3: Emergency Rollback of Terraform Deployment
+#### Procedure BG-3: Emergency Rollback of Terraform Deployment
 
 **When to use:** Recent deployment caused SEV-1 or SEV-2 incident.
 
@@ -235,9 +234,9 @@ terraform apply -var-file="terraform.tfvars.prod"
 
 ---
 
-## Alarm Response Playbooks
+### Alarm Response Playbooks
 
-### Alarm: `dev-unhealthy-tenants`
+#### Alarm: `dev-unhealthy-tenants`
 
 **Meaning:** One or more tenants have health score < 50.
 
@@ -265,7 +264,7 @@ aws logs tail /aws/lambda/dev-msp-triage-tenant-onboarding \
 
 **Resolution time:** 15-60 minutes depending on cause
 
-### Alarm: `dev-customer-insights-dlq-not-empty`
+#### Alarm: `dev-customer-insights-dlq-not-empty`
 
 **Meaning:** Customer insights reports are failing to generate.
 
@@ -292,7 +291,7 @@ aws service-quotas get-service-quota \
 - Sonnet model unavailable → Check AWS Health Dashboard
 - Tenant data missing → Investigate specific tenant
 
-### Alarm: `dev-reset-password-token-abuse`
+#### Alarm: `dev-reset-password-token-abuse`
 
 **Meaning:** Password reset tokens are being brute-forced.
 
@@ -319,7 +318,7 @@ aws logs tail /aws/lambda/dev-msp-triage-reset-password \
 - If widespread: Temporarily disable password reset, investigate
 - Notify security team if pattern suggests targeted attack
 
-### Alarm: `dev-status-api-throttled`
+#### Alarm: `dev-status-api-throttled`
 
 **Meaning:** Status API is being rate-limited, possibly due to abuse or misconfigured client.
 
@@ -344,9 +343,9 @@ aws logs tail /aws/apigateway/dev-msp-triage-tenant-onboarding \
 
 ---
 
-## Tenant Lifecycle Procedures
+### Tenant Lifecycle Procedures
 
-### Procedure TL-1: Onboard a New Tenant
+#### Procedure TL-1: Onboard a New Tenant
 
 **Prerequisites:**
 - Tenant's Entra tenant ID
@@ -403,7 +402,7 @@ curl -X GET "https://<API_URL>/status/tenants/<TENANT_ID>/health" \
 - [ ] Bedrock agent is PREPARED
 - [ ] Test conversation in Teams works
 
-### Procedure TL-2: Deprovision a Tenant
+#### Procedure TL-2: Deprovision a Tenant
 
 **Prerequisites:**
 - Tenant ID
@@ -443,15 +442,15 @@ aws dynamodb scan \
 # Should return Count: 0
 ```
 
-### Procedure TL-3: Migrate Terraform Tenant to API Management
+#### Procedure TL-3: Migrate Terraform Tenant to API Management
 
 See `scripts/migrate_tenants_to_api.py` documentation.
 
 ---
 
-## Secret Rotation Procedures
+### Secret Rotation Procedures
 
-### Procedure SR-1: Rotate Tenant Graph Credentials
+#### Procedure SR-1: Rotate Tenant Graph Credentials
 
 **Frequency:** Every 90 days (or immediately if compromised)
 
@@ -480,7 +479,7 @@ aws logs tail /aws/lambda/dev-msp-triage-identity-tools \
   --since 5m | grep -i "graph"
 ```
 
-### Procedure SR-2: Rotate Webhook URLs Secret
+#### Procedure SR-2: Rotate Webhook URLs Secret
 
 **Steps:**
 
@@ -508,9 +507,9 @@ aws lambda invoke \
 
 ---
 
-## Data Retention & Compliance
+### Data Retention & Compliance
 
-### Retention Schedule
+#### Retention Schedule
 
 | Data Type | Retention | Cleanup Method |
 |-----------|-----------|----------------|
@@ -525,7 +524,7 @@ aws lambda invoke \
 | S3 KB documents | Until tenant deletion | Manual/S3 lifecycle |
 | CloudWatch logs | 90 days | Log group retention |
 
-### GDPR/CCPA Data Deletion Request
+#### GDPR/CCPA Data Deletion Request
 
 **When a customer requests complete data deletion:**
 
@@ -537,7 +536,7 @@ aws lambda invoke \
 6. **Generate deletion certificate** with timestamps and evidence
 7. **Send confirmation** to customer within 30 days (GDPR requirement)
 
-### Backup & Recovery
+#### Backup & Recovery
 
 | Component | Backup Method | RPO | RTO |
 |-----------|---------------|-----|-----|
@@ -548,9 +547,9 @@ aws lambda invoke \
 
 ---
 
-## Common Troubleshooting
+### Common Troubleshooting
 
-### Issue: Agent responses are slow (>30s)
+#### Issue: Agent responses are slow (>30s)
 
 **Diagnosis:**
 
@@ -585,7 +584,7 @@ aws logs tail /aws/lambda/dev-msp-triage-teams-bot \
 - Large knowledge base queries → Optimize chunking
 - Network latency → Check VPC configuration
 
-### Issue: Tenant can't receive password reset emails
+#### Issue: Tenant can't receive password reset emails
 
 **Diagnosis:**
 
@@ -610,7 +609,7 @@ aws ses list-identities --identity-type MailFrom
 - Domain not verified → Add DNS records
 - Bounce rate too high → Clean up email list
 
-### Issue: Webhook notifications not being delivered
+#### Issue: Webhook notifications not being delivered
 
 **Diagnosis:**
 
@@ -638,7 +637,7 @@ aws dynamodb scan \
 
 ---
 
-## Escalation Matrix
+### Escalation Matrix
 
 | Issue Type | Primary | Secondary | External |
 |------------|---------|-----------|----------|
@@ -649,7 +648,7 @@ aws dynamodb scan \
 | Billing anomaly | FinOps | Engineering Manager | AWS Support |
 | Compliance question | Legal | CISO | External auditor |
 
-### AWS Support Contacts
+#### AWS Support Contacts
 
 - **Enterprise Support:** Case creation via AWS Console
 - **Severity 1 (production down):** Phone: +1-206-266-4064
@@ -657,7 +656,7 @@ aws dynamodb scan \
 
 ---
 
-## Appendix A: Useful CLI Commands
+### Appendix A: Useful CLI Commands
 
 ```bash
 # List all tenants with health scores
@@ -688,7 +687,7 @@ aws logs tail \
   --since 5m --follow
 ```
 
-## Appendix B: Contact List
+### Appendix B: Contact List
 
 | Role | Name | Email | Phone |
 |------|------|-------|-------|
@@ -704,4 +703,4 @@ aws logs tail \
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2026-11-20 | Platform Team | Initial version |
+| 1.0 | 2026-11-23 | Platform Team | Initial version |
