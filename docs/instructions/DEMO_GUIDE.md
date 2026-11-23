@@ -44,6 +44,7 @@ chmod +x scripts/demo.sh
 
 # Clean up demo data
 ./scripts/demo.sh --cleanup
+```
 
 ### Python Version
 
@@ -62,6 +63,7 @@ python scripts/demo.py --section 5
 
 # Clean up demo data
 python scripts/demo.py --cleanup
+```
 
 ## Demo Sections
 
