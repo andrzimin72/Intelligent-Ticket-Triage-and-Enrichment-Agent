@@ -1,8 +1,8 @@
-# Architecture Diagrams
+## Architecture Diagrams
 
 This directory contains C4 Model architecture diagrams for the MSP AI Platform.
 
-## Diagrams
+### Diagrams
 
 | Diagram | File | Description |
 |---------|------|-------------|
@@ -14,9 +14,9 @@ This directory contains C4 Model architecture diagrams for the MSP AI Platform.
 | **Mermaid Versions** | `c4-mermaid.md` | GitHub-renderable diagrams |
 | **Main Documentation** | `ARCHITECTURE.md` | Complete architecture docs |
 
-## Quick Start
+### Quick Start
 
-### View Diagrams
+#### View Diagrams
 
 **Option 1: Mermaid (easiest)**
 - Open `c4-mermaid.md` in GitHub, GitLab, or any Mermaid-compatible viewer
