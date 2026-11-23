@@ -1,0 +1,7 @@
+{
+  "BASE_URL": "https://api-na.myconnectwise.net",
+  "COMPANY_ID": "YourCWCompanyID",
+  "PUBLIC_KEY": "YourCWPubKey",
+  "PRIVATE_KEY": "YourCWPrivKey",
+  "CLIENT_ID": "MSP_Triage_Agent"
+}
