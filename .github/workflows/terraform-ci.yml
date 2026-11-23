@@ -1,0 +1,260 @@
+name: Terraform CI
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths:
+      - '**.tf'
+      - '**.py'
+      - 'layers/**'
+      - 'src_*/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write  # For OIDC federation with AWS
+
+env:
+  TF_VERSION: '1.6.0'
+  PYTHON_VERSION: '3.13'
+  AWS_REGION: us-east-1
+
+jobs:
+  # ===========================================================================
+  # Job 1: Terraform Linting & Validation
+  # ===========================================================================
+  terraform-validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Init
+        id: init
+        run: terraform init -backend=false
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Comment PR with validation results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const output = `#### Terraform Format and Style: \`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization: \`${{ steps.init.outcome }}\`
+            #### Terraform Validation: \`${{ steps.validate.outcome }}\`
+            
+            <details><summary>Validation Output</summary>
+            
+            \`\`\`
+            ${{ steps.validate.outputs.stdout }}
+            \`\`\`
+            
+            </details>
+            
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Fail if validation failed
+        if: steps.validate.outcome == 'failure' || steps.fmt.outcome == 'failure'
+        run: exit 1
+
+  # ===========================================================================
+  # Job 2: IaC Security Scanning
+  # ===========================================================================
+  terraform-security:
+    name: IaC Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run tfsec (Terraform security scanner)
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          soft_fail: false
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run trivy (comprehensive IaC scanner)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          hide-progress: false
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # ===========================================================================
+  # Job 3: Python Security Scanning
+  # ===========================================================================
+  python-security:
+    name: Python Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety pip-audit
+
+      - name: Run bandit (Python code security)
+        run: |
+          bandit -r src_*/ -ll -ii -f json -o bandit-results.json || true
+          bandit -r src_*/ -ll -ii
+
+      - name: Run pip-audit (dependency vulnerabilities)
+        run: |
+          # Find all requirements.txt files and audit them
+          find . -name "requirements.txt" -exec pip-audit -r {} \;
+
+      - name: Upload bandit results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-results
+          path: bandit-results.json
+
+  # ===========================================================================
+  # Job 4: Unit Tests
+  # ===========================================================================
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov moto boto3 aws-xray-sdk
+          find . -name "requirements.txt" -exec pip install -r {} \;
+
+      - name: Run tests with coverage
+        run: |
+          pytest tests/ -v --cov=src_* --cov-report=xml --cov-report=html
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: |
+            htmlcov/
+            coverage.xml
+
+  # ===========================================================================
+  # Job 5: Terraform Plan (dev environment)
+  # ===========================================================================
+  terraform-plan:
+    name: Terraform Plan (dev)
+    needs: [terraform-validate, terraform-security, python-security, unit-tests]
+    runs-on: ubuntu-latest
+    environment: dev  # GitHub environment for environment-specific secrets
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Build Lambda layers
+        run: |
+          for dir in layers/*/; do
+            if [ -f "$dir/build.sh" ]; then
+              echo "Building layer: $dir"
+              (cd "$dir" && bash build.sh)
+            fi
+          done
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan -no-color -var-file="terraform.tfvars.dev" -out=tfplan
+        continue-on-error: true
+
+      - name: Update PR with plan summary
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: "${{ steps.plan.outputs.stdout }}"
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Plan: \`${{ steps.plan.outcome }}\`
+            
+            <details><summary>Show Plan</summary>
+            
+            \`\`\`hcl
+            ${process.env.PLAN}
+            \`\`\`
+            
+            </details>
+            
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Upload plan artifact
+        if: steps.plan.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-dev
+          path: tfplan
+
+      - name: Fail if plan failed
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
