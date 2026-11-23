@@ -256,19 +256,19 @@ ConnectWise → Webhook → Orchestrator → SQS → Worker
                                       ↓           ↓
                                    Haiku       Sonnet
                                       ↓           ↓
-                                   └─────┬─────┘
-                                         ↓
-                                   Confidence check
-                                         ↓
-                                   ┌─────┴─────┐
-                                   ↓           ↓
-                                High        Low
-                                   ↓           ↓
-                                Accept      Retry with Sonnet
-                                   ↓
-                              Update ticket
-                                   ↓
-                              Record metrics
+                                      └─────┬─────┘
+                                            ↓
+                                    Confidence check
+                                            ↓
+                                      ┌─────┴─────┐
+                                      ↓           ↓
+                                     High        Low
+                                      ↓           ↓
+                                    Accept   Retry with Sonnet
+                                      ↓
+                                 Update ticket
+                                      ↓
+                                Record metrics
 ```
 
 ### Security Architecture
@@ -353,8 +353,6 @@ ConnectWise → Webhook → Orchestrator → SQS → Worker
 ### Additional Resources
 
 - [Operations Runbook](../OPERATIONS_RUNBOOK.md)
-- [Security Model](../SECURITY.md)
-- [API Documentation](../API.md)
 - [Deployment Guide](../DEPLOYMENT.md)
 
 ### Diagram Maintenance
