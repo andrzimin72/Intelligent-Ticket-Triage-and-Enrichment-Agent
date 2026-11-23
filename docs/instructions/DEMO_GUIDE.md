@@ -235,20 +235,31 @@ Windows:
 Track these metrics to measure demo effectiveness:
 
 a) Completion rate: % of demos completed without errors
+
 b) Engagement: Number of questions asked
+
 c) Follow-up requests: % requesting more information
+
 d) Conversion rate: % moving to pilot/production
+
 e) Demo duration: Average time to complete
+
 f) Technical issues: Number of issues encountered
 
 ### What the Demo Shows
 
 a) Multi-Tenant Architecture - Creates two isolated tenants
+
 b) Ticket Triage - Simulates AI processing a support ticket
+
 c) IT Concierge - Shows Teams conversation with agent
+
 d) Password Reset - Demonstrates secure reset flow
+
 e) Customer Insights - Shows weekly report generation
+
 f) Analytics - Displays metrics and dashboards
+
 g) Tenant Portal - Shows self-service interface
 
 ### Customization Tips
