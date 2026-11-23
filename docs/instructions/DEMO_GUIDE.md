@@ -71,7 +71,7 @@ python scripts/demo.py --cleanup
 
 Duration: 2-3 minutes
 
-What it shows:
+a) What it shows:
 
 -Creating two demo tenants (Acme Corp and Beta Inc)
 
@@ -81,7 +81,7 @@ What it shows:
 
 -Tenant listing and status
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -Complete data isolation between tenants
 
@@ -95,7 +95,7 @@ Key points to emphasize:
 
 Duration: 2-3 minutes
 
-What it shows:
+a) What it shows:
 
 -Incoming ticket simulation
 
@@ -105,7 +105,7 @@ What it shows:
 
 -Feedback loop for continuous improvement
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -90%+ accuracy in categorization
 
@@ -119,7 +119,7 @@ Key points to emphasize:
 
 Duration: 3-4 minutes
 
-What it shows:
+a) What it shows:
 
 -Natural language conversation in Teams
 
@@ -129,7 +129,7 @@ What it shows:
 
 -Audit trail logging
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -24/7 availability
 
@@ -143,7 +143,7 @@ Key points to emphasize:
 
 Duration: 2-3 minutes
 
-What it shows:
+a) What it shows:
 
 -Password reset request via chat
 
@@ -153,7 +153,7 @@ What it shows:
 
 -Security features
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -No passwords in chat
 
@@ -169,7 +169,7 @@ Key points to emphasize:
 
 Duration: 2-3 minutes
 
-What it shows:
+a) What it shows:
 
 -Automated weekly analysis
 
@@ -179,7 +179,7 @@ What it shows:
 
 -Professional report format
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -Proactive customer communication
 
@@ -193,7 +193,7 @@ Key points to emphasize:
 
 Duration: 2-3 minutes
 
-What it shows:
+a) What it shows:
 
 -Executive summary
 
@@ -203,7 +203,7 @@ What it shows:
 
 -CloudWatch dashboards
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -Real-time monitoring
 
@@ -217,7 +217,7 @@ Key points to emphasize:
 
 Duration: 2-3 minutes
 
-What it shows:
+a) What it shows:
 
 -Self-service portal interface
 
@@ -227,7 +227,7 @@ What it shows:
 
 -Audit log viewing
 
-Key points to emphasize:
+b) Key points to emphasize:
 
 -Reduces support tickets
 
