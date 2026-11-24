@@ -12,7 +12,6 @@ This directory contains C4 Model architecture diagrams for the MSP AI Platform.
 | **Component: Teams Bot** | `c4-component-teams-bot.puml` | Teams bot adapter internals |
 | **Deployment** | `c4-deployment.puml` | AWS deployment topology |
 | **Mermaid Versions** | `c4-mermaid.md` | GitHub-renderable diagrams |
-| **Main Documentation** | `ARCHITECTURE.md` | Complete architecture docs |
 
 ### Quick Start
 
