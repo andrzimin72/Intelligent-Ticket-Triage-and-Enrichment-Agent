@@ -1,8 +1,8 @@
-# MSP AI Platform - C4 Architecture (Mermaid)
+## MSP AI Platform - C4 Architecture (Mermaid)
 
 These diagrams use Mermaid syntax and render directly in GitHub, GitLab, and most Markdown viewers.
 
-## Level 1: System Context
+### Level 1: System Context
 
 ```mermaid
 graph TB
@@ -54,7 +54,7 @@ graph TB
     PORTAL --> ENTRA
 ```
 
-## Level 2: Container Diagram
+### Level 2: Container Diagram
 
 ```mermaid
 graph TB
@@ -147,7 +147,7 @@ graph TB
     WEBHOOK_NOTIF --> DDB
 ```
 
-## Level 3: Component - Tenant Onboarding API
+### Level 3: Component - Tenant Onboarding API
 
 ```mermaid
 graph TB
@@ -214,7 +214,7 @@ graph TB
     EXEC_SUMMARY --> ANALYTICS_DB
 ```
 
-## Data Flow: Password Reset
+### Data Flow: Password Reset
 
 ```mermaid
 sequenceDiagram
@@ -265,7 +265,7 @@ sequenceDiagram
     T-->>U: Confirmation
 ```
 
-## Multi-Tenant Isolation
+### Multi-Tenant Isolation
 
 ```mermaid
 graph LR
