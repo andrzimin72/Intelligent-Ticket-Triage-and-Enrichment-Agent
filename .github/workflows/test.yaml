@@ -1,0 +1,90 @@
+# .github/workflows/test.yml
+name: Test Suite
+
+on:
+  pull_request:
+    branches: [main, staging]
+  push:
+    branches: [main]
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements-dev.txt
+      
+      - name: Run unit tests
+        run: |
+          pytest tests/ -v --cov=src_* --cov-report=xml
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+  
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Start LocalStack
+        run: |
+          docker-compose up -d
+          sleep 30
+      
+      - name: Run integration tests
+        run: |
+          AWS_ENDPOINT_URL=http://localhost:4566 pytest tests/integration/ -v
+      
+      - name: Stop LocalStack
+        if: always()
+        run: |
+          docker-compose down
+  
+  security-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run bandit
+        run: |
+          bandit -r src_*/ -ll -ii
+      
+      - name: Run pip-audit
+        run: |
+          pip-audit -r requirements.txt
+      
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+  
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: [integration-tests, security-tests]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Deploy to dev
+        run: |
+          terraform init
+          terraform apply -auto-approve -var-file=terraform.tfvars.dev
+      
+      - name: Run E2E tests
+        run: |
+          ./scripts/test_e2e.sh
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          terraform destroy -auto-approve -var-file=terraform.tfvars.dev
