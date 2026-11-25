@@ -1,1 +1,40 @@
-
+{
+  "test_tenants": [
+    {
+      "tenant_id": "test-tenant-alpha",
+      "display_name": "Test Alpha Corp",
+      "entra_tenant_id": "11111111-1111-1111-1111-111111111111",
+      "admin_group_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+      "contact_email": "admin@alpha-test.com"
+    },
+    {
+      "tenant_id": "test-tenant-beta",
+      "display_name": "Test Beta Inc",
+      "entra_tenant_id": "22222222-2222-2222-2222-222222222222",
+      "admin_group_id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+      "contact_email": "admin@beta-test.com"
+    }
+  ],
+  "test_users": [
+    {
+      "user_id": "test-user-1",
+      "email": "user1@test.com",
+      "aad_id": "user-aad-11111",
+      "tenant_id": "test-tenant-alpha"
+    }
+  ],
+  "test_tickets": [
+    {
+      "ticket_id": "TICKET-001",
+      "subject": "Password reset request",
+      "category": "identity",
+      "complexity": "simple"
+    },
+    {
+      "ticket_id": "TICKET-002",
+      "subject": "Security incident investigation",
+      "category": "security",
+      "complexity": "complex"
+    }
+  ]
+}
