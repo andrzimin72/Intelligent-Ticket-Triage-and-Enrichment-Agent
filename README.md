@@ -3,6 +3,7 @@ The MSP AI Platform is an enterprise-grade, multi-tenant artificial intelligence
 
 ## MSP AI Platform SetUp and QuickStart:
 a) Instructions for using Demonstration Python script, Full-Setup Platform are posted in the directory folder https://github.com/andrzimin72/Intelligent-Ticket-Triage-and-Enrichment-Agent/docs/.
+
 b) For deeper technical details, refer to the companion documents in the directory folder docs/:
 - High Architecture, C4 Models and Network Infrastructure (docs/architecture/);
 - Technical Whitepaper, Prerequisites, Installation, Configuration, Testing Instructions and Quick Start Guide (docs/instructions/);
