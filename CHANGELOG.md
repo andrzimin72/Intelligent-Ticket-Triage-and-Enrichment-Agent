@@ -1,4 +1,3 @@
-```markdown
 # Changelog
 
 All notable changes to the MSP AI Platform will be documented in this file.
