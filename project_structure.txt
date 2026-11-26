@@ -20,7 +20,7 @@
 # =============================================================================
 
 
-msp-triage-infra/
+msp-platform-intelligent_ticket_triage&enrichment_agent/
 │
 ├── 📊 PROJECT ROOT (Configuration & Documentation)
 │   │
