@@ -1,3 +1,0 @@
-terraform.tfvars.dev       # Dev-specific variables
-terraform.tfvars.staging   # Staging-specific variables
-terraform.tfvars.prod      # Prod-specific variables
