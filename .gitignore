@@ -1,65 +1,110 @@
 # =============================================================================
-# Python
+# TERRAFORM
 # =============================================================================
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-.venv/
-venv/
-ENV/
-*.egg-info/
-dist/
-build/
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-.ruff_cache/
-
-# =============================================================================
-# Terraform
-# =============================================================================
+# Local working directory
 .terraform/
+
+# State files (NEVER commit state files to Git)
 *.tfstate
 *.tfstate.*
 *.tfplan
+*.tfplan.json
+
+# Crash logs
 crash.log
+
+# Local override files (Safe to ignore, keeps local dev secrets out of Git)
+*.auto.tfvars
+*.auto.tfvars.json
+terraform.tfvars.local
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
-.terraformrc
-terraform.rc
+
+# NOTE: .terraform.lock.hcl SHOULD be committed to ensure reproducible builds.
+# Do not add it to this file.
 
 # =============================================================================
-# Build Artifacts
+# PYTHON
+# =============================================================================
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Pytest
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Ruff / Black
+.ruff_cache/
+
+# =============================================================================
+# BUILD ARTIFACTS (Lambda & Layers)
 # =============================================================================
 .build/
 *.zip
+layers/*/layer.zip
 layers/*/package/
 
 # =============================================================================
-# Docker
+# DOCKER
 # =============================================================================
-# Docker containers and images (runtime artifacts)
-.dockerignore
-docker-compose.override.yml
-
-# Docker volumes and data
-/tmp/localstack/
-localstack-data/
-
-# Docker build cache
 .docker/
-
-# Docker secrets (if using Docker secrets)
-*.secret
-docker-secrets/
+docker-compose.override.yml
+*.log
 
 # =============================================================================
-# IDE
+# ENVIRONMENT & SECRETS
+# =============================================================================
+# NEVER commit actual secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+secrets.json
+credentials
+.aws/
+
+# =============================================================================
+# IDE & EDITORS
 # =============================================================================
 .vscode/
 .idea/
@@ -67,64 +112,27 @@ docker-secrets/
 *.swo
 *~
 .DS_Store
-
-# =============================================================================
-# Environment & Secrets
-# =============================================================================
-.env
-.env.local
-*.pem
-*.key
-secrets.json
-terraform.tfvars.local
-
-# =============================================================================
-# Documentation Build
-# =============================================================================
-site/
-
-# =============================================================================
-# Logs
-# =============================================================================
-*.log
-logs/
-
-# =============================================================================
-# OS
-# =============================================================================
 Thumbs.db
 
 # =============================================================================
-# Testing
+# DOCUMENTATION & STATIC SITE BUILD
 # =============================================================================
-# LocalStack state
-localstack-init/ready.d/*.log
-
-# Test coverage (keep htmlcov/ tracked for CI badges)
-coverage.xml
-nosetests.xml
+site/
+docs/architecture/ieee1471/rendered/
 
 # =============================================================================
-# Miscellaneous
+# OS & MISC
 # =============================================================================
-# Backup files
-*.bak
-*.backup
-*~
+# Logs
+*.log
+logs/
 
 # Temporary files
 tmp/
 temp/
 *.tmp
 
-# Node modules (if using any JS tooling)
+# Node modules (if any JS tooling is used for the portal)
 node_modules/
 package-lock.json
 yarn.lock
-
-# AWS credentials (should never be committed)
-.aws/
-credentials
-
-# SAM build (if using AWS SAM)
-.aws-sam/
