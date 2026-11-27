@@ -783,3 +783,283 @@ output "s3_buckets" {
 output "dynamodb_tables" {
   value = { for k, v in aws_dynamodb_table.main : k => v.name }
 }
+
+# =============================================================================
+# API GATEWAY - API KEY & USAGE PLAN
+# =============================================================================
+
+resource "aws_apigatewayv2_api_key" "onboarding" {
+  name        = "${local.prefix}-onboarding-key"
+  description = "API key for tenant onboarding and admin operations"
+  enabled     = true
+  
+  # Auto-rotate every 90 days (optional)
+  # value = random_password.api_key.result
+}
+
+resource "random_password" "api_key" {
+  length  = 40
+  special = false
+}
+
+resource "aws_apigatewayv2_stage" "authenticated" {
+  api_id = aws_apigatewayv2_api.main.id
+  name   = "authenticated"
+  
+  # Note: API Gateway v2 HTTP APIs don't natively support API keys
+  # For production, use a Lambda authorizer or Cognito authorizer instead
+}
+
+# For HTTP API, use a Lambda authorizer (simplified approach)
+resource "aws_apigatewayv2_authorizer" "api_key" {
+  api_id           = aws_apigatewayv2_api.main.id
+  authorizer_type  = "REQUEST"
+  authorizer_uri   = aws_lambda_function.main["tenant_onboarding"].invoke_arn
+  name             = "${local.prefix}-api-key-auth"
+  identity_sources = ["$request.header.x-api-key"]
+  authorizer_payload_format_version = "2.0"
+  enable_simple_responses = true
+}
+
+# =============================================================================
+# CLOUDWATCH DASHBOARDS
+# =============================================================================
+
+resource "aws_cloudwatch_dashboard" "executive" {
+  dashboard_name = "${local.prefix}-executive"
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 12
+        height = 6
+        properties = {
+          metrics = [
+            ["AWS/Lambda", "Invocations", "FunctionName", aws_lambda_function.main["tenant_onboarding"].function_name],
+            ["...", aws_lambda_function.main["teams_bot"].function_name],
+            ["...", aws_lambda_function.main["tenant_provisioning_worker"].function_name]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = data.aws_region.current.name
+          title   = "Lambda Invocations (Key Functions)"
+          period  = 300
+        }
+      },
+      {
+        type   = "metric"
+        x      = 12
+        y      = 0
+        width  = 12
+        height = 6
+        properties = {
+          metrics = [
+            ["AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", aws_dynamodb_table.main["tenant_registry"].name],
+            ["...", aws_dynamodb_table.main["agent_audit_log"].name]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = data.aws_region.current.name
+          title   = "DynamoDB Read Capacity"
+          period  = 300
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_cloudwatch_dashboard" "operations" {
+  dashboard_name = "${local.prefix}-operations"
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 6
+        properties = {
+          metrics = [
+            ["AWS/Lambda", "Errors", "FunctionName", aws_lambda_function.main["teams_bot"].function_name],
+            ["...", aws_lambda_function.main["tenant_onboarding"].function_name],
+            ["...", aws_lambda_function.main["tenant_provisioning_worker"].function_name],
+            ["...", aws_lambda_function.main["identity_tools"].function_name]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = data.aws_region.current.name
+          title   = "Lambda Errors (All Critical Functions)"
+          period  = 300
+        }
+      },
+      {
+        type   = "metric"
+        x      = 0
+        y      = 6
+        width  = 24
+        height = 6
+        properties = {
+          metrics = [
+            ["AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", aws_sqs_queue.main["tenant_provisioning"].name],
+            ["...", aws_sqs_queue.main["customer_digest"].name],
+            ["...", aws_sqs_queue.main["customer_insights"].name]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = data.aws_region.current.name
+          title   = "SQS Queue Depths"
+          period  = 300
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_cloudwatch_dashboard" "security" {
+  dashboard_name = "${local.prefix}-security"
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 6
+        properties = {
+          metrics = [
+            [{ expression = "SEARCH('{AWS/Lambda,FunctionName} FunctionName', 'Sum', 300)", id = "e1", label = "All Lambda Errors" }]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = data.aws_region.current.name
+          title   = "Security-Relevant Errors"
+          period  = 300
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_cloudwatch_dashboard" "cost" {
+  dashboard_name = "${local.prefix}-cost"
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type   = "metric"
+        x      = 0
+        y      = 0
+        width  = 24
+        height = 6
+        properties = {
+          metrics = [
+            ["AWS/Lambda", "Duration", "FunctionName", aws_lambda_function.main["teams_bot"].function_name, { stat = "Average" }],
+            ["...", aws_lambda_function.main["tenant_provisioning_worker"].function_name, { stat = "Average" }],
+            ["...", aws_lambda_function.main["analytics_aggregation"].function_name, { stat = "Average" }]
+          ]
+          view    = "timeSeries"
+          stacked = false
+          region  = data.aws_region.current.name
+          title   = "Lambda Duration (Cost Indicator)"
+          period  = 300
+        }
+      }
+    ]
+  })
+}
+
+# =============================================================================
+# CLOUDWATCH ALARMS
+# =============================================================================
+
+locals {
+  alarms = {
+    critical_lambda_errors = {
+      metric_name = "Errors"
+      namespace   = "AWS/Lambda"
+      threshold   = 5
+      period      = 300
+      dimensions  = { FunctionName = aws_lambda_function.main["teams_bot"].function_name }
+    }
+    critical_dlq_messages = {
+      metric_name = "ApproximateNumberOfMessagesVisible"
+      namespace   = "AWS/SQS"
+      threshold   = 0
+      period      = 300
+      dimensions  = { QueueName = aws_sqs_queue.dlq["tenant_provisioning"].name }
+    }
+    warning_dynamodb_throttles = {
+      metric_name = "ThrottledRequests"
+      namespace   = "AWS/DynamoDB"
+      threshold   = 0
+      period      = 300
+      dimensions  = { TableName = aws_dynamodb_table.main["tenant_registry"].name }
+    }
+  }
+}
+
+resource "aws_cloudwatch_metric_alarm" "main" {
+  for_each = local.alarms
+
+  alarm_name          = "${local.prefix}-${each.key}"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = each.value.metric_name
+  namespace           = each.value.namespace
+  period              = each.value.period
+  statistic           = "Sum"
+  threshold           = each.value.threshold
+  alarm_description   = "Alert: ${each.key} exceeded threshold"
+  treat_missing_data  = "notBreaching"
+
+  dimensions = each.value.dimensions
+
+  alarm_actions = [aws_sns_topic.main["alerts"].arn]
+  ok_actions    = [aws_sns_topic.main["alerts"].arn]
+}
+
+# =============================================================================
+# SNS TOPICS (ALERTING)
+# =============================================================================
+
+resource "aws_sns_topic" "main" {
+  for_each = toset(["alerts", "security", "cost"])
+  name     = "${local.prefix}-${each.key}"
+}
+
+resource "aws_sns_topic_subscription" "alerts_email" {
+  count     = var.alert_email != "" ? 1 : 0
+  topic_arn = aws_sns_topic.main["alerts"].arn
+  protocol  = "email"
+  endpoint  = var.alert_email
+}
+
+# =============================================================================
+# SQS EVENT SOURCE MAPPINGS (TRIGGER LAMBDAS FROM QUEUES)
+# =============================================================================
+
+resource "aws_lambda_event_source_mapping" "sqs" {
+  for_each = {
+    tenant_provisioning = {
+      queue_key     = "tenant_provisioning"
+      function_key  = "tenant_provisioning_worker"
+      batch_size    = 1
+    }
+    customer_digest = {
+      queue_key     = "customer_digest"
+      function_key  = "customer_digest_worker"
+      batch_size    = 10
+    }
+    customer_insights = {
+      queue_key     = "customer_insights"
+      function_key  = "customer_insights_worker"
+      batch_size    = 10
+    }
+  }
+
+  event_source_arn = aws_sqs_queue.main[each.value.queue_key].arn
+  function_name    = aws_lambda_function.main[each.value.function_key].arn
+  batch_size       = each.value.batch_size
+  enabled          = true
+}
