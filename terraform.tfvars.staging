@@ -1,142 +1,46 @@
 # =============================================================================
 # MSP AI Platform - Staging Environment
 # =============================================================================
-# Usage: terraform plan -var-file=terraform.tfvars.staging
-# Deployed manually with 1 approver via GitHub Actions.
-# Mirrors production configuration for final validation.
-# =============================================================================
 
-# -----------------------------------------------------------------------------
-# CORE
-# -----------------------------------------------------------------------------
 project     = "msp-triage"
 environment = "staging"
 aws_region  = "us-east-1"
 
-# -----------------------------------------------------------------------------
-# MICROSOFT INTEGRATION (Fill in your staging values)
-# -----------------------------------------------------------------------------
-entra_tenant_id      = "44444444-4444-4444-4444-444444444444"
-entra_app_client_id  = "55555555-5555-5555-5555-555555555555"
-agent_admin_group_id = "66666666-6666-6666-6666-666666666666"
-bot_app_id           = "77777777-7777-7777-7777-777777777777"
+# Microsoft Integration (Dedicated Staging App Registrations)
+entra_tenant_id      = "55555555-5555-5555-5555-555555555555"
+entra_app_client_id  = "66666666-6666-6666-6666-666666666666"
+agent_admin_group_id = "77777777-7777-7777-7777-777777777777"
+bot_app_id           = "88888888-8888-8888-8888-888888888888"
 
-# -----------------------------------------------------------------------------
-# EMAIL CONFIGURATION
-# -----------------------------------------------------------------------------
+# Communication (Staging-specific)
 alert_email                         = "staging-alerts@yourmsp.com"
-metrics_report_sender_email         = "staging-reports@yourmsp.com"
-metrics_report_recipient_email      = "staging-leadership@yourmsp.com"
-customer_digest_sender_email        = "staging-digest@yourmsp.com"
-customer_insights_sender_email      = "staging-insights@yourmsp.com"
 password_reset_sender_email         = "staging-passwords@yourmsp.com"
-agent_notification_sender_email     = "staging-notifications@yourmsp.com"
-agent_security_notification_email   = "staging-security@yourmsp.com"
-password_reset_support_email        = "staging-support@yourmsp.com"
+password_reset_domain_name          = "reset-staging.yourmsp.com"
+password_reset_hosted_zone_id       = "Z1234567890ABCDEF" # Replace with actual Route53 Zone ID
+portal_domain_name                  = "portal-staging.yourmsp.com"
+portal_hosted_zone_id               = "Z1234567890ABCDEF" # Replace with actual Route53 Zone6
+portal_callback_url                 = "https://portal-staging.yourmsp.com/callback"
+portal_logout_url                   = "https://portal-staging.yourmsp.com"
 
-# -----------------------------------------------------------------------------
-# CUSTOM DOMAINS (use staging subdomains)
-# -----------------------------------------------------------------------------
-password_reset_domain_name  = "reset-staging.yourmsp.com"
-portal_domain_name          = "portal-staging.yourmsp.com"
-password_reset_hosted_zone_id = "Z1234567890ABC"  # Replace with your zone
-portal_hosted_zone_id         = "Z1234567890ABC"  # Replace with your zone
+# Feature Flags (Mirror Production)
+enable_knowledge_base         = true
+enable_tenant_portal          = true
+enable_advanced_analytics     = true
+enable_custom_health_checks   = true
+enable_webhook_notifications  = true
+enable_guardrails             = true
+enable_xray_tracing           = true
 
-unsubscribe_base_url                    = "https://api-staging.yourmsp.com"
-customer_insights_unsubscribe_base_url  = "https://api-staging.yourmsp.com"
-
-# -----------------------------------------------------------------------------
-# FEATURE FLAGS (mirrors production)
-# -----------------------------------------------------------------------------
-enable_cost_optimization       = true
-enable_knowledge_base          = true
-enable_onboarding_api          = true
-enable_status_history          = true
-enable_webhook_notifications   = true
-enable_custom_health_checks    = true
-enable_tenant_portal           = true
-enable_advanced_analytics      = true
-enable_cloudwatch_dashboards   = true
-enable_microsoft_teams_bot     = true
-enable_password_reset          = true
-enable_customer_digest         = true
-enable_customer_insights       = true
-enable_feedback_loop           = true
-enable_xray_tracing            = true
-
-# -----------------------------------------------------------------------------
-# RETENTION (matches production)
-# -----------------------------------------------------------------------------
-agent_audit_log_retention_days            = 365
-metrics_retention_days                    = 90
-feedback_retention_days                   = 365
-agent_feedback_retention_days             = 365
-customer_digest_history_retention_days    = 90
-customer_insights_retention_days          = 730
-status_history_retention_days             = 90
-analytics_retention_days                  = 365
-
-# -----------------------------------------------------------------------------
-# LOGGING (matches production)
-# -----------------------------------------------------------------------------
-log_retention_days = 90
-
-# -----------------------------------------------------------------------------
-# PERFORMANCE (production-like)
-# -----------------------------------------------------------------------------
-lambda_timeout_seconds = 60
-lambda_memory_mb       = 512
-max_concurrency        = 5
-
-# -----------------------------------------------------------------------------
-# RATE LIMITS (production-like)
-# -----------------------------------------------------------------------------
-agent_self_rate_limits = {
-  per_operation_hourly = 3
-  per_operation_daily  = 5
-  requests_hourly      = 10
-}
-
-agent_admin_rate_limits = {
-  per_operation_hourly = 20
-  per_operation_daily  = 50
-  per_target_daily     = 3
-  requests_hourly      = 30
-}
-
-status_api_requests_per_second          = 5
-status_api_burst_limit                  = 10
-status_deep_health_requests_per_second  = 1
-status_deep_health_burst_limit          = 2
-
-# -----------------------------------------------------------------------------
-# SECURITY (matches production)
-# -----------------------------------------------------------------------------
+# Production-Like Retention (Slightly reduced for cost, but realistic)
 secret_recovery_window_days       = 7
-password_reset_token_ttl_seconds  = 900
-deprovision_drain_seconds         = 60
+log_retention_days                = 90
+agent_audit_log_retention_days    = 180
+metrics_retention_days            = 90
+feedback_retention_days           = 180
+status_history_retention_days     = 90
+analytics_retention_days          = 180
 
-# -----------------------------------------------------------------------------
-# STAGING TENANTS
-# -----------------------------------------------------------------------------
-tenants = {
-  "staging-customer-a" = {
-    display_name    = "Staging Customer A"
-    entra_tenant_id = "88888888-8888-8888-8888-888888888888"
-    admin_group_id  = "99999999-9999-9999-9999-999999999999"
-    agent_instruction = "You are an AI IT Concierge for Staging Customer A."
-  }
-}
-
-default_tenant_id = "staging-customer-a"
-
-# -----------------------------------------------------------------------------
-# BRANDING (Staging)
-# -----------------------------------------------------------------------------
-msp_default_branding = {
-  company_name   = "Your MSP (Staging)"
-  logo_url       = "https://staging-cdn.yourmsp.com/logo.png"
-  primary_color  = "#ffa500"  # Orange to visually distinguish staging
-  support_email  = "staging-support@yourmsp.com"
-  support_phone  = "+1-555-0002"
-}
+# Production-Like Limits
+password_reset_token_ttl_seconds = 900  # 15 minutes
+agent_confirmation_ttl_seconds   = 600  # 10 minutes
+deprovision_drain_seconds        = 60   # 1 minute

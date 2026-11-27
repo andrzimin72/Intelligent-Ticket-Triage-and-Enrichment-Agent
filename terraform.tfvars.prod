@@ -1,104 +1,58 @@
 # =============================================================================
 # MSP AI Platform - Production Environment
 # =============================================================================
-# Usage: terraform plan -var-file=terraform.tfvars.prod
-# Deployed manually with 2 approvers via GitHub Actions.
-# State is automatically backed up before deployment.
-#
-# WARNING: Changes to production require careful review and approval.
+# WARNING: Changes here require formal change management and 2-person approval.
 # =============================================================================
 
-# -----------------------------------------------------------------------------
-# CORE
-# -----------------------------------------------------------------------------
 project     = "msp-triage"
 environment = "prod"
 aws_region  = "us-east-1"
 
-# -----------------------------------------------------------------------------
-# MICROSOFT INTEGRATION (Fill in your production values)
-# -----------------------------------------------------------------------------
-entra_tenant_id      = "aaaa1111-bbbb-2222-cccc-333344445555"
-entra_app_client_id  = "bbbb2222-cccc-3333-dddd-444455556666"
-agent_admin_group_id = "cccc3333-dddd-4444-eeee-555566667777"
-bot_app_id           = "dddd4444-eeee-5555-ffff-666677778888"
+# Microsoft Integration (Production App Registrations)
+entra_tenant_id      = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee"
+entra_app_client_id  = "bbbbbbbb-cccc-dddd-eeee-ffffffffffff"
+agent_admin_group_id = "cccccccc-dddd-eeee-ffff-000000000000"
+bot_app_id           = "dddddddd-eeee-ffff-0000-111111111111"
 
-# -----------------------------------------------------------------------------
-# EMAIL CONFIGURATION (verified production domains)
-# -----------------------------------------------------------------------------
+# Communication (Production Verified SES Domains)
 alert_email                         = "alerts@yourmsp.com"
-metrics_report_sender_email         = "reports@yourmsp.com"
-metrics_report_recipient_email      = "leadership@yourmsp.com"
-customer_digest_sender_email        = "digest@yourmsp.com"
-customer_insights_sender_email      = "insights@yourmsp.com"
 password_reset_sender_email         = "passwords@yourmsp.com"
-agent_notification_sender_email     = "notifications@yourmsp.com"
-agent_security_notification_email   = "security@yourmsp.com"
-password_reset_support_email        = "support@yourmsp.com"
+password_reset_domain_name          = "reset.yourmsp.com"
+password_reset_hosted_zone_id       = "ZABCDEF1234567890" # Replace with actual Route53 Zone ID
+portal_domain_name                  = "portal.yourmsp.com"
+portal_hosted_zone_id               = "ZABCDEF1234567890" # Replace with actual Route53 Zone ID
+portal_callback_url                 = "https://portal.yourmsp.com/callback"
+portal_logout_url                   = "https://portal.yourmsp.com"
 
-# -----------------------------------------------------------------------------
-# CUSTOM DOMAINS (production domains with TLS)
-# -----------------------------------------------------------------------------
-password_reset_domain_name  = "reset.yourmsp.com"
-portal_domain_name          = "portal.yourmsp.com"
-password_reset_hosted_zone_id = "ZABC1234567890"  # Replace with actual zone
-portal_hosted_zone_id         = "ZABC1234567890"  # Replace with actual zone
+# Feature Flags (All Enabled for Full Platform Capability)
+enable_knowledge_base         = true
+enable_tenant_portal          = true
+enable_advanced_analytics     = true
+enable_custom_health_checks   = true
+enable_webhook_notifications  = true
+enable_guardrails             = true
+enable_xray_tracing           = true
 
-unsubscribe_base_url                    = "https://api.yourmsp.com"
-customer_insights_unsubscribe_base_url  = "https://api.yourmsp.com"
+# Strict Security & Maximum Compliance Retention
+secret_recovery_window_days       = 30   # 30-day recovery window for safety
+log_retention_days                = 365
+agent_audit_log_retention_days    = 365  # 1 year for compliance
+metrics_retention_days            = 90
+feedback_retention_days           = 365
+status_history_retention_days     = 90
+analytics_retention_days          = 365
 
-# -----------------------------------------------------------------------------
-# FEATURE FLAGS (all enabled for full platform)
-# -----------------------------------------------------------------------------
-enable_cost_optimization       = true
-enable_knowledge_base          = true
-enable_onboarding_api          = true
-enable_status_history          = true
-enable_webhook_notifications   = true
-enable_custom_health_checks    = true
-enable_tenant_portal           = true
-enable_advanced_analytics      = true
-enable_cloudwatch_dashboards   = true
-enable_microsoft_teams_bot     = true
-enable_password_reset          = true
-enable_customer_digest         = true
-enable_customer_insights       = true
-enable_feedback_loop           = true
-enable_xray_tracing            = true
+# Strict Production Limits
+password_reset_token_ttl_seconds = 900  # 15 minutes (strict)
+agent_confirmation_ttl_seconds   = 600  # 10 minutes
+deprovision_drain_seconds        = 60   # 1 minute to prevent orphaned jobs
 
-# -----------------------------------------------------------------------------
-# RETENTION (maximum for compliance)
-# -----------------------------------------------------------------------------
-agent_audit_log_retention_days            = 365   # 1 year
-metrics_retention_days                    = 90
-feedback_retention_days                   = 365
-agent_feedback_retention_days             = 365
-customer_digest_history_retention_days    = 90
-customer_insights_retention_days          = 730   # 2 years
-status_history_retention_days             = 90
-analytics_retention_days                  = 365
-
-# -----------------------------------------------------------------------------
-# LOGGING (1 year for compliance audits)
-# -----------------------------------------------------------------------------
-log_retention_days = 365
-
-# -----------------------------------------------------------------------------
-# PERFORMANCE (optimized for scale)
-# -----------------------------------------------------------------------------
-lambda_timeout_seconds = 60
-lambda_memory_mb       = 512
-max_concurrency        = 10  # Higher for production load
-
-# -----------------------------------------------------------------------------
-# RATE LIMITS (production values)
-# -----------------------------------------------------------------------------
+# Strict Rate Limits (Prevent runaway costs/abuse)
 agent_self_rate_limits = {
   per_operation_hourly = 3
   per_operation_daily  = 5
   requests_hourly      = 10
 }
-
 agent_admin_rate_limits = {
   per_operation_hourly = 20
   per_operation_daily  = 50
@@ -106,70 +60,5 @@ agent_admin_rate_limits = {
   requests_hourly      = 30
 }
 
-status_api_requests_per_second          = 5
-status_api_burst_limit                  = 10
-status_deep_health_requests_per_second  = 1
-status_deep_health_burst_limit          = 2
-
-# -----------------------------------------------------------------------------
-# SECURITY (strict production values)
-# -----------------------------------------------------------------------------
-secret_recovery_window_days       = 30   # 30-day recovery window
-password_reset_token_ttl_seconds  = 900  # 15 minutes
-deprovision_drain_seconds         = 60
-
-# -----------------------------------------------------------------------------
-# COST OPTIMIZATION (aggressive in production)
-# -----------------------------------------------------------------------------
-simple_ticket_confidence_threshold = 0.75  # More conservative routing
-simple_ticket_max_tokens           = 512
-
-# -----------------------------------------------------------------------------
-# WEBHOOKS (production alerting)
-# -----------------------------------------------------------------------------
-webhook_cooldown_seconds = 3600  # 1 hour
-webhook_retry_attempts   = 3
-
-# -----------------------------------------------------------------------------
-# SCHEDULES (production timing)
-# -----------------------------------------------------------------------------
-customer_digest_schedule_hour_utc       = 11   # 6 AM EST
-customer_insights_default_local_day     = 6    # Sunday
-customer_insights_default_local_hour    = 9    # 9 AM local
-status_history_snapshot_hour_utc        = 6    # 2 AM EST
-
-# -----------------------------------------------------------------------------
-# PRODUCTION TENANTS
-# -----------------------------------------------------------------------------
-# Add your actual production tenants here
-# Most tenants will be API-managed, but you can seed critical ones here
-tenants = {
-  "acme-corp" = {
-    display_name    = "Acme Corporation"
-    entra_tenant_id = "acme1111-2222-3333-4444-555566667777"
-    admin_group_id  = "acme2222-3333-4444-5555-666677778888"
-    agent_instruction = "You are an AI IT Concierge for Acme Corporation. Be professional and helpful."
-  }
-}
-
-default_tenant_id = ""  # Empty - all tenants API-managed
-
-# -----------------------------------------------------------------------------
-# BRANDING (Production)
-# -----------------------------------------------------------------------------
-msp_default_branding = {
-  company_name   = "Your MSP"
-  logo_url       = "https://cdn.yourmsp.com/logo.png"
-  primary_color  = "#2c3e50"
-  support_email  = "support@yourmsp.com"
-  support_phone  = "+1-800-555-0100"
-}
-
-# -----------------------------------------------------------------------------
-# PORTAL ADMINISTRATION
-# -----------------------------------------------------------------------------
-portal_entra_tenant_id      = "aaaa1111-bbbb-2222-cccc-333344445555"
-portal_allowed_admin_emails = [
-  "admin@yourmsp.com",
-  "security@yourmsp.com"
-]
+# Cost Optimization (Aggressive in Prod)
+simple_ticket_confidence_threshold = 0.75 # Route more tickets to cheaper Haiku model
