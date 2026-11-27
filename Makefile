@@ -100,8 +100,8 @@ env-load:  ## Load environment variables from .env
 env-check:  ## Check if required environment variables are set
 	@echo "$(BLUE)→ Checking environment variables...$(NC)"
 	@test -n "$$AWS_PROFILE" || (echo "Missing AWS_PROFILE" && exit 1)
-	@test -n "$$TF_VAR_project" || (echo "Missing TF_VAR_project" && exit 1)
-	@test -n "$$TF_VAR_environment" || (echo "Missing TF_VAR_environment" && exit 1)
+	@test -n "$$project" || (echo "Missing project" && exit 1)
+	@test -n "$$environment" || (echo "Missing environment" && exit 1)
 	@echo "$(GREEN)✓ All required variables are set$(NC)"
 
 # =============================================================================
@@ -277,15 +277,15 @@ deploy: validate plan apply  ## Full deployment workflow (validate → plan → 
 deploy-lambda:  ## Deploy only Lambda functions (faster iteration)
 	@echo "$(BLUE)→ Deploying Lambda functions to $(ENV)...$(NC)"
 	@$(TF) apply -auto-approve -var-file=$(TF_VARS_FILE) \
-		-target=aws_lambda_function.orchestrator \
-		-target=aws_lambda_function.worker \
-		-target=aws_lambda_function.teams_bot \
-		-target=aws_lambda_function.identity_tools \
-		-target=aws_lambda_function.tenant_onboarding \
-		-target=aws_lambda_function.tenant_provisioning_worker \
-		-target=aws_lambda_function.status_history_snapshot \
-		-target=aws_lambda_function.webhook_notifier \
-		-target=aws_lambda_function.analytics_aggregation
+		-target=aws_lambda_function.main["orchestrator"] \
+		-target=aws_lambda_function.main["worker"] \
+		-target=aws_lambda_function.main["teams_bot"] \
+		-target=aws_lambda_function.main["identity_tools"] \
+		-target=aws_lambda_function.main["tenant_onboarding"] \
+		-target=aws_lambda_function.main["tenant_provisioning_worker"] \
+		-target=aws_lambda_function.main["status_history_snapshot"] \
+		-target=aws_lambda_function.main["webhook_notifier"] \
+		-target=aws_lambda_function.main["analytics_aggregation"]
 	@echo "$(GREEN)✓ Lambda functions deployed$(NC)"
 
 # =============================================================================
@@ -414,14 +414,14 @@ portal-docker:  ## Run portal in Docker container
 tenant-list:  ## List all tenants
 	@echo "$(BLUE)→ Listing tenants...$(NC)"
 	@aws dynamodb scan \
-		--table-name msp-triage-$(ENV)-tenant-registry \
+		--table-name $$(terraform output -raw tenant_registry_table) \
 		--projection-expression "tenant_id, display_name, status, management_mode" \
 		--output table
 
 tenant-status:  ## Show status of all tenants (requires API)
 	@echo "$(BLUE)→ Fetching tenant statuses...$(NC)"
-	@curl -s "$$(terraform output -raw tenant_onboarding_api_url)/status/tenants" \
-		-H "x-api-key: $$(aws apigatewayv2 get-api-key --api-key $$(terraform output -raw onboarding_api_key_id) --include-value --query 'value' --output text)" | jq
+	@curl -s "$$(terraform output -raw api_url)/status/tenants" \
+		-H "x-api-key: $$(terraform output -raw onboarding_api_key_value)" | jq
 
 tenant-onboard:  ## Onboard a new tenant (interactive)
 	@echo "$(BLUE)→ Onboarding new tenant...$(NC)"
@@ -430,8 +430,8 @@ tenant-onboard:  ## Onboard a new tenant (interactive)
 	read -p "Entra Tenant ID: " entra; \
 	read -p "Admin Group ID: " admin; \
 	read -p "Contact Email: " email; \
-	curl -X POST "$$(terraform output -raw tenant_onboarding_api_url)/tenants" \
-		-H "x-api-key: $$(aws apigatewayv2 get-api-key --api-key $$(terraform output -raw onboarding_api_key_id) --include-value --query 'value' --output text)" \
+	curl -X POST "$$(terraform output -raw api_url)/tenants" \
+		-H "x-api-key: $$(terraform output -raw onboarding_api_key_value)" \
 		-H "Content-Type: application/json" \
 		-d "{\"tenant_id\": \"$$tid\", \"display_name\": \"$$name\", \"entra_tenant_id\": \"$$entra\", \"admin_group_id\": \"$$admin\", \"contact_email\": \"$$email\"}" | jq
 
@@ -450,26 +450,26 @@ tenant-audit:  ## Audit orphaned S3 data
 logs:  ## Tail CloudWatch logs for all critical Lambdas
 	@echo "$(BLUE)→ Tailing logs for critical Lambdas...$(NC)"
 	@aws logs tail \
-		/aws/lambda/msp-triage-$(ENV)-teams-bot \
-		/aws/lambda/msp-triage-$(ENV)-identity-tools \
-		/aws/lambda/msp-triage-$(ENV)-tenant-onboarding \
+		/aws/lambda/$$(terraform output -raw resource_prefix)-teams-bot \
+		/aws/lambda/$$(terraform output -raw resource_prefix)-identity-tools \
+		/aws/lambda/$$(terraform output -raw resource_prefix)-tenant-onboarding \
 		--since 5m --follow
 
 logs-lambda:  ## Tail logs for a specific Lambda (usage: make logs-lambda NAME=teams_bot)
 	@echo "$(BLUE)→ Tailing logs for $(NAME)...$(NC)"
-	@aws logs tail /aws/lambda/msp-triage-$(ENV)-$(NAME) --since 5m --follow
+	@aws logs tail /aws/lambda/$$(terraform output -raw resource_prefix)-$(NAME) --since 5m --follow
 
 alarms:  ## Show active CloudWatch alarms
 	@echo "$(BLUE)→ Fetching active alarms...$(NC)"
 	@aws cloudwatch describe-alarms \
-		--alarm-name-prefix msp-triage-$(ENV) \
+		--alarm-name-prefix $$(terraform output -raw resource_prefix) \
 		--state-value ALARM \
 		--output table
 
 dashboards:  ## List CloudWatch dashboards
 	@echo "$(BLUE)→ Listing CloudWatch dashboards...$(NC)"
 	@aws cloudwatch list-dashboards \
-		--dashboard-name-prefix msp-triage-$(ENV) \
+		--dashboard-name-prefix $$(terraform output -raw resource_prefix) \
 		--query 'DashboardEntries[].DashboardName' \
 		--output table
 
@@ -480,19 +480,19 @@ dashboards:  ## List CloudWatch dashboards
 analytics-run:  ## Manually trigger analytics aggregation
 	@echo "$(BLUE)→ Triggering analytics aggregation...$(NC)"
 	@aws lambda invoke \
-		--function-name msp-triage-$(ENV)-analytics-aggregation \
+		--function-name $$(terraform output -raw analytics_aggregation_function_name) \
 		--payload '{"days": 30}' \
 		/dev/stdout | jq
 
 analytics-summary:  ## Show executive summary
 	@echo "$(BLUE)→ Fetching executive summary...$(NC)"
-	@curl -s "$$(terraform output -raw tenant_onboarding_api_url)/analytics/executive-summary" \
-		-H "x-api-key: $$(aws apigatewayv2 get-api-key --api-key $$(terraform output -raw onboarding_api_key_id) --include-value --query 'value' --output text)" | jq
+	@curl -s "$$(terraform output -raw api_url)/analytics/executive-summary" \
+		-H "x-api-key: $$(terraform output -raw onboarding_api_key_value)" | jq
 
 analytics-trends:  ## Show health trends
 	@echo "$(BLUE)→ Fetching health trends...$(NC)"
-	@curl -s "$$(terraform output -raw tenant_onboarding_api_url)/analytics/health-trends?days=30" \
-		-H "x-api-key: $$(aws apigatewayv2 get-api-key --api-key $$(terraform output -raw onboarding_api_key_id) --include-value --query 'value' --output text)" | jq
+	@curl -s "$$(terraform output -raw api_url)/analytics/health-trends?days=30" \
+		-H "x-api-key: $$(terraform output -raw onboarding_api_key_value)" | jq
 
 # =============================================================================
 # DEMO
@@ -584,7 +584,7 @@ release-check: lint test security validate  ## Run all checks before release
 
 release-notes:  ## Generate release notes from git log
 	@echo "$(BLUE)→ Generating release notes...$(NC)"
-	@git log --pretty=format:"* %s (%h)" --no-merges $(shell git describe --tags --abbrev=0)..HEAD
+	@git log --pretty=format:"* %s (%h)" --no-merges $$(git describe --tags --abbrev=0 2>/dev/null || echo "HEAD")..HEAD
 	@echo ""
 
 # =============================================================================
@@ -595,9 +595,9 @@ check-prereqs:  ## Check all prerequisites are installed
 	@echo "$(BLUE)→ Checking prerequisites...$(NC)"
 	@for cmd in aws terraform python git jq docker make; do \
 		if command -v $$cmd &> /dev/null; then \
-			echo "  $(GREEN)✓$$NC $$cmd: $$(command -v $$cmd)"; \
+			echo "  $(GREEN)✓$(NC) $$cmd: $$(command -v $$cmd)"; \
 		else \
-			echo "  $(RED)✗$$NC $$cmd: NOT FOUND"; \
+			echo "  $(RED)✗$(NC) $$cmd: NOT FOUND"; \
 		fi \
 	done
 
