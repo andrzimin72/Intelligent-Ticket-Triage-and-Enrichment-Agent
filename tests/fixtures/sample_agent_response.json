@@ -1,0 +1,336 @@
+{
+  "_metadata": {
+    "description": "Sample Amazon Bedrock Agent responses for testing",
+    "version": "1.0.0",
+    "last_updated": "2026-11-23",
+    "usage": "Used to mock Bedrock Agent responses in unit and integration tests",
+    "reference": "https://docs.aws.amazon.com/bedrock/latest/userguide/agents.html"
+  },
+
+  "simple_text_response": {
+    "sessionId": "session-abc-123",
+    "output": {
+      "text": "Hello! I'm your IT Concierge. How can I help you today?"
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "password_reset_confirmation_response": {
+    "sessionId": "session-def-456",
+    "output": {
+      "text": "I can help you reset your password. For security, I need to verify your identity first. Please confirm: You want to reset the password for john.doe@alpha-test.com?"
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "tool_use_verify_identity": {
+    "sessionId": "session-ghi-789",
+    "output": {
+      "text": ""
+    },
+    "returnControl": {
+      "invocationId": "invocation-001",
+      "invocationInputs": [
+        {
+          "functionInvocationInput": {
+            "actionGroup": "identity_tools",
+            "function": "verify_identity",
+            "parameters": [
+              {
+                "name": "user_email",
+                "type": "string",
+                "value": "john.doe@alpha-test.com"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "tool_use_reset_password": {
+    "sessionId": "session-jkl-012",
+    "output": {
+      "text": ""
+    },
+    "returnControl": {
+      "invocationId": "invocation-002",
+      "invocationInputs": [
+        {
+          "functionInvocationInput": {
+            "actionGroup": "identity_tools",
+            "function": "request_password_reset",
+            "parameters": [
+              {
+                "name": "user_aad_id",
+                "type": "string",
+                "value": "aad-11111111-1111-1111-1111-111111111111"
+              },
+              {
+                "name": "tenant_id",
+                "type": "string",
+                "value": "test-tenant-alpha"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "tool_use_check_ticket_status": {
+    "sessionId": "session-mno-345",
+    "output": {
+      "text": ""
+    },
+    "returnControl": {
+      "invocationId": "invocation-003",
+      "invocationInputs": [
+        {
+          "functionInvocationInput": {
+            "actionGroup": "ticket_tools",
+            "function": "get_ticket_status",
+            "parameters": [
+              {
+                "name": "ticket_id",
+                "type": "string",
+                "value": "TICKET-12345"
+              },
+              {
+                "name": "tenant_id",
+                "type": "string",
+                "value": "test-tenant-beta"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "tool_use_book_conference_room": {
+    "sessionId": "session-pqr-678",
+    "output": {
+      "text": ""
+    },
+    "returnControl": {
+      "invocationId": "invocation-004",
+      "invocationInputs": [
+        {
+          "functionInvocationInput": {
+            "actionGroup": "calendar_tools",
+            "function": "find_free_time",
+            "parameters": [
+              {
+                "name": "date",
+                "type": "string",
+                "value": "2026-11-24"
+              },
+              {
+                "name": "time",
+                "type": "string",
+                "value": "14:00"
+              },
+              {
+                "name": "attendees",
+                "type": "number",
+                "value": "8"
+              },
+              {
+                "name": "tenant_id",
+                "type": "string",
+                "value": "test-tenant-alpha"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "kb_retrieval_response": {
+    "sessionId": "session-stu-901",
+    "output": {
+      "text": "Based on our VPN setup guide, here's how to connect:\n\n1. Open the Cisco AnyConnect client\n2. Enter the server address: vpn.alpha-test.com\n3. Enter your corporate credentials\n4. Click Connect\n\nIf you continue to have issues, please check that your account has VPN access enabled in the IT portal."
+    },
+    "trace": {
+      "knowledgeBase": {
+        "retrievedDocuments": [
+          {
+            "source": "tenants/test-tenant-alpha/vpn-setup-guide.md",
+            "score": 0.92,
+            "content": "VPN Setup Instructions..."
+          }
+        ]
+      }
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "multi_tool_response": {
+    "sessionId": "session-vwx-234",
+    "output": {
+      "text": "I've checked your account and devices. Here's what I found:\n\n• Account Status: Active ✓\n• MFA Enabled: Yes ✓\n• Last Sign-in: Today at 9:15 AM\n• Devices: 3 registered (Laptop, Phone, Tablet)\n\nIs there anything specific you'd like me to help you with?"
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "approval_card_response": {
+    "sessionId": "session-yza-567",
+    "output": {
+      "text": ""
+    },
+    "attachments": [
+      {
+        "contentType": "application/vnd.microsoft.card.adaptive",
+        "content": {
+          "type": "AdaptiveCard",
+          "version": "1.4",
+          "body": [
+            {
+              "type": "TextBlock",
+              "text": "Password Reset Confirmation",
+              "weight": "Bolder",
+              "size": "Medium"
+            },
+            {
+              "type": "TextBlock",
+              "text": "You are about to reset the password for: john.doe@alpha-test.com",
+              "wrap": true
+            },
+            {
+              "type": "TextBlock",
+              "text": "This action will send a secure reset link to the user's registered email.",
+              "wrap": true,
+              "isSubtle": true
+            }
+          ],
+          "actions": [
+            {
+              "type": "Action.Submit",
+              "title": "Approve",
+              "style": "positive",
+              "data": {
+                "action": "approve",
+                "confirmation_id": "conf-12345-abcde",
+                "operation": "password_reset"
+              }
+            },
+            {
+              "type": "Action.Submit",
+              "title": "Deny",
+              "style": "destructive",
+              "data": {
+                "action": "deny",
+                "confirmation_id": "conf-12345-abcde",
+                "operation": "password_reset"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "responseContentType": "text/plain"
+  },
+
+  "feedback_card_response": {
+    "sessionId": "session-bcd-890",
+    "output": {
+      "text": "I've reset your password and sent a secure link to your email. The link will expire in 15 minutes."
+    },
+    "attachments": [
+      {
+        "contentType": "application/vnd.microsoft.card.adaptive",
+        "content": {
+          "type": "AdaptiveCard",
+          "version": "1.4",
+          "body": [
+            {
+              "type": "TextBlock",
+              "text": "Was this response helpful?",
+              "weight": "Bolder"
+            }
+          ],
+          "actions": [
+            {
+              "type": "Action.Submit",
+              "title": "👍 Yes",
+              "data": {
+                "action": "feedback",
+                "feedback_type": "thumbs_up"
+              }
+            },
+            {
+              "type": "Action.Submit",
+              "title": "👎 No",
+              "data": {
+                "action": "feedback",
+                "feedback_type": "thumbs_down"
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "responseContentType": "text/plain"
+  },
+
+  "guardrail_blocked_response": {
+    "sessionId": "session-efg-123",
+    "output": {
+      "text": "I'm sorry, I cannot assist with that request. My purpose is to help with IT support tasks like password resets, account management, and answering questions about our systems. Is there something else I can help you with?"
+    },
+    "trace": {
+      "guardrail": {
+        "assessment": "BLOCKED",
+        "reason": "prompt_injection_detected",
+        "matchedPolicy": "security-policy-001"
+      }
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "error_response_agent_failure": {
+    "sessionId": "session-hij-456",
+    "output": {
+      "text": "I apologize, but I'm experiencing technical difficulties right now. Please try again in a few moments, or contact the IT help desk directly at support@yourmsp.com."
+    },
+    "error": {
+      "code": "AgentInvocationFailed",
+      "message": "Bedrock agent returned an error"
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "error_response_rate_limited": {
+    "sessionId": "session-klm-789",
+    "output": {
+      "text": "I'm currently handling a high volume of requests. Please wait a moment and try again."
+    },
+    "error": {
+      "code": "ThrottlingException",
+      "message": "Rate limit exceeded"
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "empty_response": {
+    "sessionId": "session-nop-012",
+    "output": {
+      "text": ""
+    },
+    "responseContentType": "text/plain"
+  },
+
+  "long_response_with_formatting": {
+    "sessionId": "session-qrs-345",
+    "output": {
+      "text": "Here's a detailed summary of your IT environment:\n\n**Account Status**\n• Status: Active\n• MFA: Enabled\n• Last Password Change: 45 days ago\n\n**Devices**\n• Laptop (Windows 11) - Online\n• iPhone 14 - Online\n• iPad Pro - Offline (last seen 3 days ago)\n\n**Recent Activity**\n• 12 support tickets (last 30 days)\n• 3 password resets (last 90 days)\n• 1 account unlock (last 60 days)\n\n**Recommendations**\n1. Consider updating your iPad's OS\n2. Review your password policy compliance\n3. Enable biometric authentication on mobile devices"
+    },
+    "responseContentType": "text/plain"
+  }
+}
