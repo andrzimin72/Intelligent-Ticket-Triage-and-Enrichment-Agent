@@ -1,0 +1,464 @@
+{
+  "_metadata": {
+    "description": "Ticket classification dataset for testing AI triage accuracy",
+    "version": "1.0.0",
+    "last_updated": "2026-11-23",
+    "usage": "Used to validate ticket triage accuracy (target: >90%)",
+    "categories": [
+      "identity",
+      "infrastructure",
+      "software",
+      "hardware",
+      "network",
+      "security",
+      "email",
+      "calendar",
+      "billing",
+      "other"
+    ],
+    "complexity_levels": ["simple", "medium", "complex"]
+  },
+
+  "tickets": [
+    {
+      "id": "DS-001",
+      "subject": "Password reset",
+      "description": "I forgot my password and can't log in.",
+      "expected_category": "identity",
+      "expected_subcategory": "password_reset",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.95,
+      "tags": ["urgent", "common"]
+    },
+    {
+      "id": "DS-002",
+      "subject": "Account locked",
+      "description": "My account got locked after too many failed login attempts. Please unlock it.",
+      "expected_category": "identity",
+      "expected_subcategory": "account_unlock",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.93,
+      "tags": ["urgent"]
+    },
+    {
+      "id": "DS-003",
+      "subject": "Cannot access email",
+      "description": "Outlook keeps saying my credentials are invalid even though I just changed my password.",
+      "expected_category": "identity",
+      "expected_subcategory": "authentication",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.88,
+      "tags": ["email", "authentication"]
+    },
+    {
+      "id": "DS-004",
+      "subject": "New employee setup",
+      "description": "We have a new hire starting Monday. Need to create their AD account, assign licenses, set up email, and provision laptop.",
+      "expected_category": "identity",
+      "expected_subcategory": "onboarding",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.90,
+      "tags": ["onboarding", "multi-step"]
+    },
+    {
+      "id": "DS-005",
+      "subject": "Production server down",
+      "description": "Our main production web server SRV-PROD-01 is completely unresponsive. All customers are affected. This is critical.",
+      "expected_category": "infrastructure",
+      "expected_subcategory": "server_outage",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.94,
+      "tags": ["critical", "urgent", "customer-impact"]
+    },
+    {
+      "id": "DS-006",
+      "subject": "Slow network performance",
+      "description": "Internet is extremely slow on the 3rd floor. Affecting about 20 users.",
+      "expected_category": "network",
+      "expected_subcategory": "performance",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.87,
+      "tags": ["network", "performance"]
+    },
+    {
+      "id": "DS-007",
+      "subject": "VPN not working",
+      "description": "Cannot connect to corporate VPN from home. Getting error 809.",
+      "expected_category": "network",
+      "expected_subcategory": "vpn",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.89,
+      "tags": ["remote-work", "vpn"]
+    },
+    {
+      "id": "DS-008",
+      "subject": "WiFi disconnected",
+      "description": "Office WiFi keeps dropping every 10 minutes.",
+      "expected_category": "network",
+      "expected_subcategory": "wifi",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.86,
+      "tags": ["wifi", "intermittent"]
+    },
+    {
+      "id": "DS-009",
+      "subject": "Install Adobe Acrobat",
+      "description": "Need Adobe Acrobat Pro installed on my laptop for document signing.",
+      "expected_category": "software",
+      "expected_subcategory": "installation",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.92,
+      "tags": ["software", "installation"]
+    },
+    {
+      "id": "DS-010",
+      "subject": "Application crashing",
+      "description": "Excel keeps crashing whenever I try to open large files (>50MB). Started happening after last week's Office update.",
+      "expected_category": "software",
+      "expected_subcategory": "crash",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.85,
+      "tags": ["software", "crash", "regression"]
+    },
+    {
+      "id": "DS-011",
+      "subject": "Need software license",
+      "description": "Requesting a license for AutoCAD 2026 for my engineering work.",
+      "expected_category": "software",
+      "expected_subcategory": "licensing",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.88,
+      "tags": ["software", "license", "approval-needed"]
+    },
+    {
+      "id": "DS-012",
+      "subject": "Printer not working",
+      "description": "HP LaserJet on 3rd floor not printing. Shows offline status.",
+      "expected_category": "hardware",
+      "expected_subcategory": "printer",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.91,
+      "tags": ["hardware", "printer"]
+    },
+    {
+      "id": "DS-013",
+      "subject": "Laptop screen flickering",
+      "description": "My laptop screen keeps flickering intermittently. It's a Dell XPS 15.",
+      "expected_category": "hardware",
+      "expected_subcategory": "laptop",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.84,
+      "tags": ["hardware", "laptop", "intermittent"]
+    },
+    {
+      "id": "DS-014",
+      "subject": "Monitor not detected",
+      "description": "External monitor not being detected by my laptop. Tried different cables and ports.",
+      "expected_category": "hardware",
+      "expected_subcategory": "monitor",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.83,
+      "tags": ["hardware", "monitor", "troubleshooting"]
+    },
+    {
+      "id": "DS-015",
+      "subject": "Suspicious email received",
+      "description": "Received an email claiming to be from our CEO asking for urgent wire transfer. Looks like phishing.",
+      "expected_category": "security",
+      "expected_subcategory": "phishing",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.95,
+      "tags": ["security", "phishing", "urgent"]
+    },
+    {
+      "id": "DS-016",
+      "subject": "Possible malware detected",
+      "description": "Antivirus flagged a file as potentially malicious. User downloaded it from an unknown website.",
+      "expected_category": "security",
+      "expected_subcategory": "malware",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.93,
+      "tags": ["security", "malware", "urgent"]
+    },
+    {
+      "id": "DS-017",
+      "subject": "Data breach concern",
+      "description": "Noticed unusual outbound network traffic from the finance server. Might be a data exfiltration attempt.",
+      "expected_category": "security",
+      "expected_subcategory": "data_breach",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.91,
+      "tags": ["security", "critical", "investigation"]
+    },
+    {
+      "id": "DS-018",
+      "subject": "Email not sending",
+      "description": "Cannot send emails from Outlook. Receiving works fine. Getting bounce-back errors.",
+      "expected_category": "email",
+      "expected_subcategory": "sending",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.89,
+      "tags": ["email", "outlook"]
+    },
+    {
+      "id": "DS-019",
+      "subject": "Calendar invite not showing",
+      "description": "Meeting invite from external client not appearing in my calendar. Other invites work fine.",
+      "expected_category": "calendar",
+      "expected_subcategory": "invite",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.86,
+      "tags": ["calendar", "external"]
+    },
+    {
+      "id": "DS-020",
+      "subject": "Book conference room",
+      "description": "Need to book a conference room for 10 people tomorrow at 3 PM for a client presentation.",
+      "expected_category": "calendar",
+      "expected_subcategory": "room_booking",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.92,
+      "tags": ["calendar", "booking"]
+    },
+    {
+      "id": "DS-021",
+      "subject": "Billing question",
+      "description": "Why was I charged twice for my last invoice? Need this resolved ASAP.",
+      "expected_category": "billing",
+      "expected_subcategory": "duplicate_charge",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.87,
+      "tags": ["billing", "urgent"]
+    },
+    {
+      "id": "DS-022",
+      "subject": "Update payment method",
+      "description": "Need to update our credit card on file for monthly billing.",
+      "expected_category": "billing",
+      "expected_subcategory": "payment_update",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.90,
+      "tags": ["billing", "administrative"]
+    },
+    {
+      "id": "DS-023",
+      "subject": "Database performance issues",
+      "description": "SQL Server database queries are taking 10x longer than usual. Affecting all users of the ERP system.",
+      "expected_category": "infrastructure",
+      "expected_subcategory": "database",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.88,
+      "tags": ["infrastructure", "database", "performance"]
+    },
+    {
+      "id": "DS-024",
+      "subject": "Backup failed",
+      "description": "Nightly backup job failed with error code 0x80070005. Need immediate attention as this is our primary data backup.",
+      "expected_category": "infrastructure",
+      "expected_subcategory": "backup",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.90,
+      "tags": ["infrastructure", "backup", "critical"]
+    },
+    {
+      "id": "DS-025",
+      "subject": "Need help with something else",
+      "description": "I have a question but I'm not sure what category it falls into.",
+      "expected_category": "other",
+      "expected_subcategory": "uncategorized",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.60,
+      "tags": ["ambiguous", "needs-clarification"]
+    },
+    {
+      "id": "DS-026",
+      "subject": "URGENT!!! EVERYTHING IS BROKEN!!!!",
+      "description": "!!!",
+      "expected_category": "other",
+      "expected_subcategory": "unclear",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.45,
+      "tags": ["urgent", "unclear", "needs-clarification"]
+    },
+    {
+      "id": "DS-027",
+      "subject": "Request for new laptop",
+      "description": "My current laptop is 5 years old and running very slow. Requesting a replacement.",
+      "expected_category": "hardware",
+      "expected_subcategory": "procurement",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.82,
+      "tags": ["hardware", "procurement", "approval-needed"]
+    },
+    {
+      "id": "DS-028",
+      "subject": "Two-factor authentication not working",
+      "description": "Not receiving 2FA codes on my phone. Tried resending multiple times.",
+      "expected_category": "identity",
+      "expected_subcategory": "mfa",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.91,
+      "tags": ["identity", "mfa", "authentication"]
+    },
+    {
+      "id": "DS-029",
+      "subject": "Teams meeting not starting",
+      "description": "Scheduled Teams meeting won't start. Getting 'We're having trouble starting your meeting' error.",
+      "expected_category": "software",
+      "expected_subcategory": "teams",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.87,
+      "tags": ["software", "teams", "meeting"]
+    },
+    {
+      "id": "DS-030",
+      "subject": "File sharing permissions",
+      "description": "Need access to the Marketing department SharePoint site. My manager has approved.",
+      "expected_category": "identity",
+      "expected_subcategory": "permissions",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.89,
+      "tags": ["identity", "permissions", "sharepoint"]
+    },
+    {
+      "id": "DS-031",
+      "subject": "Computer running slow",
+      "description": "My computer has been very slow lately. Takes forever to boot up and open applications.",
+      "expected_category": "hardware",
+      "expected_subcategory": "performance",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.80,
+      "tags": ["hardware", "performance", "troubleshooting"]
+    },
+    {
+      "id": "DS-032",
+      "subject": "SSL certificate expiring",
+      "description": "Our main website SSL certificate expires in 7 days. Need to renew and deploy.",
+      "expected_category": "infrastructure",
+      "expected_subcategory": "certificate",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.88,
+      "tags": ["infrastructure", "certificate", "time-sensitive"]
+    },
+    {
+      "id": "DS-033",
+      "subject": "Mobile device setup",
+      "description": "Just got a new company iPhone. Need help setting up email, VPN, and MDM enrollment.",
+      "expected_category": "hardware",
+      "expected_subcategory": "mobile",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.86,
+      "tags": ["hardware", "mobile", "setup"]
+    },
+    {
+      "id": "DS-034",
+      "subject": "Cannot connect to shared drive",
+      "description": "Network drive Z: not accessible. Getting 'network path not found' error.",
+      "expected_category": "network",
+      "expected_subcategory": "file_sharing",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.87,
+      "tags": ["network", "file-sharing"]
+    },
+    {
+      "id": "DS-035",
+      "subject": "Thanks for your help!",
+      "description": "Just wanted to say thanks for fixing my issue yesterday. Everything is working great now.",
+      "expected_category": "other",
+      "expected_subcategory": "feedback",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.75,
+      "tags": ["feedback", "non-actionable"]
+    },
+    {
+      "id": "DS-036",
+      "subject": "Firewall rule request",
+      "description": "Need to open port 8443 on the perimeter firewall for a new vendor integration. Security team has approved.",
+      "expected_category": "security",
+      "expected_subcategory": "firewall",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.89,
+      "tags": ["security", "firewall", "approved"]
+    },
+    {
+      "id": "DS-037",
+      "subject": "Password expiration notice",
+      "description": "When does my password expire? I want to change it before it does.",
+      "expected_category": "identity",
+      "expected_subcategory": "password_info",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.92,
+      "tags": ["identity", "informational"]
+    },
+    {
+      "id": "DS-038",
+      "subject": "Cloud migration project",
+      "description": "We need to migrate our on-premises file server to SharePoint Online. Approximately 5TB of data across 50 users. Need a project plan and timeline.",
+      "expected_category": "infrastructure",
+      "expected_subcategory": "migration",
+      "expected_complexity": "complex",
+      "expected_confidence": 0.91,
+      "tags": ["infrastructure", "project", "migration"]
+    },
+    {
+      "id": "DS-039",
+      "subject": "Zoom not working",
+      "description": "Zoom meetings keep disconnecting after 5 minutes. Happening to multiple users.",
+      "expected_category": "software",
+      "expected_subcategory": "zoom",
+      "expected_complexity": "medium",
+      "expected_confidence": 0.85,
+      "tags": ["software", "zoom", "widespread"]
+    },
+    {
+      "id": "DS-040",
+      "subject": "Keyboard keys not working",
+      "description": "Several keys on my laptop keyboard stopped working (A, S, D, F). Need replacement.",
+      "expected_category": "hardware",
+      "expected_subcategory": "keyboard",
+      "expected_complexity": "simple",
+      "expected_confidence": 0.90,
+      "tags": ["hardware", "keyboard", "replacement"]
+    }
+  ],
+
+  "category_distribution": {
+    "identity": 8,
+    "infrastructure": 5,
+    "software": 5,
+    "hardware": 7,
+    "network": 5,
+    "security": 4,
+    "email": 1,
+    "calendar": 2,
+    "billing": 2,
+    "other": 3
+  },
+
+  "complexity_distribution": {
+    "simple": 16,
+    "medium": 18,
+    "complex": 6
+  },
+
+  "expected_accuracy_targets": {
+    "overall": 0.90,
+    "by_category": {
+      "identity": 0.95,
+      "infrastructure": 0.90,
+      "software": 0.88,
+      "hardware": 0.90,
+      "network": 0.87,
+      "security": 0.93,
+      "email": 0.85,
+      "calendar": 0.88,
+      "billing": 0.85,
+      "other": 0.70
+    },
+    "by_complexity": {
+      "simple": 0.95,
+      "medium": 0.88,
+      "complex": 0.80
+    }
+  }
+}
