@@ -1,13 +1,16 @@
 # =============================================================================
-# MSP Triage Infrastructure - Makefile
+# MSP AI Platform - Master Makefile
 # =============================================================================
-# Common development commands for the MSP Triage platform.
+# Comprehensive development, testing, deployment, and operations commands.
 #
 # Usage:
 #   make help          # Show all available commands
 #   make setup         # Initial project setup
 #   make test          # Run all tests
 #   make deploy-dev    # Deploy to dev environment
+#
+# Environment:
+#   ENV=dev|staging|prod  (default: dev)
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -35,7 +38,6 @@ TF_PLAN_FILE := tfplan-$(ENV)
 DOCKER := docker
 DOCKER_COMPOSE := docker-compose
 LAYER_BUILDER_IMAGE := lambda-layer-builder
-LOCALSTACK_CONTAINER := localstack
 
 # Directories
 SRC_DIRS := $(wildcard src_*/)
@@ -47,6 +49,7 @@ BLUE := \033[0;34m
 GREEN := \033[0;32m
 YELLOW := \033[0;33m
 RED := \033[0;31m
+CYAN := \033[0;36m
 NC := \033[0m  # No Color
 
 # -----------------------------------------------------------------------------
@@ -54,18 +57,20 @@ NC := \033[0m  # No Color
 # -----------------------------------------------------------------------------
 help:  ## Show this help message
 	@echo ""
-	@echo "$(BLUE)MSP Triage Infrastructure - Available Commands$(NC)"
-	@echo "=================================================="
+	@echo "$(BLUE)═══════════════════════════════════════════════════════════$(NC)"
+	@echo "$(BLUE)  MSP AI Platform - Available Commands$(NC)"
+	@echo "$(BLUE)═══════════════════════════════════════════════════════════$(NC)"
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-20s$(NC) %s\n", $$1, $$2}'
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-25s$(NC) %s\n", $$1, $$2}'
 	@echo ""
 	@echo "$(YELLOW)Current environment: $(ENV)$(NC)"
 	@echo ""
 
-# -----------------------------------------------------------------------------
-# Setup & Installation
-# -----------------------------------------------------------------------------
+# =============================================================================
+# SETUP & INSTALLATION
+# =============================================================================
+
 setup: install init-terraform  ## Initial project setup (venv + terraform init)
 	@echo "$(GREEN)✓ Setup complete$(NC)"
 
@@ -99,9 +104,10 @@ env-check:  ## Check if required environment variables are set
 	@test -n "$$TF_VAR_environment" || (echo "Missing TF_VAR_environment" && exit 1)
 	@echo "$(GREEN)✓ All required variables are set$(NC)"
 
-# -----------------------------------------------------------------------------
-# Development
-# -----------------------------------------------------------------------------
+# =============================================================================
+# TESTING
+# =============================================================================
+
 test:  ## Run all tests with coverage
 	@echo "$(BLUE)→ Running tests...$(NC)"
 	@$(VENV_BIN)/pytest $(TESTS_DIR) -v --cov=src_* --cov-report=term-missing --cov-report=html
@@ -114,13 +120,45 @@ test-quick:  ## Run tests without coverage (faster)
 
 test-unit:  ## Run only unit tests
 	@echo "$(BLUE)→ Running unit tests...$(NC)"
-	@$(VENV_BIN)/pytest $(TESTS_DIR) -v -m "not integration"
+	@$(VENV_BIN)/pytest $(TESTS_DIR)/unit -v -m "not integration"
 	@echo "$(GREEN)✓ Unit tests complete$(NC)"
 
-test-local: localstack-up  ## Run tests against LocalStack
+test-integration: localstack-up  ## Run integration tests against LocalStack
+	@echo "$(BLUE)→ Running integration tests...$(NC)"
+	@AWS_ENDPOINT_URL=http://localhost:4566 $(VENV_BIN)/pytest $(TESTS_DIR)/integration -v
+	@echo "$(GREEN)✓ Integration tests complete$(NC)"
+
+test-local: localstack-up  ## Run all tests against LocalStack
 	@echo "$(BLUE)→ Running tests against LocalStack...$(NC)"
 	@AWS_ENDPOINT_URL=http://localhost:4566 $(VENV_BIN)/pytest $(TESTS_DIR) -v -m local
 	@echo "$(GREEN)✓ Local tests complete$(NC)"
+
+test-e2e-journey:  ## Run E2E customer journey test
+	@echo "$(BLUE)→ Running E2E customer journey test...$(NC)"
+	@./scripts/test/test_e2e_customer_journey.sh
+	@echo "$(GREEN)✓ E2E journey test complete$(NC)"
+
+test-e2e-security:  ## Run E2E security incident test
+	@echo "$(BLUE)→ Running E2E security incident test...$(NC)"
+	@./scripts/test/test_e2e_security_incident.sh
+	@echo "$(GREEN)✓ E2E security test complete$(NC)"
+
+test-load:  ## Run API load tests (quick mode)
+	@echo "$(BLUE)→ Running API load tests...$(NC)"
+	@./scripts/test/test_load_api.sh --quick
+	@echo "$(GREEN)✓ Load tests complete$(NC)"
+
+test-load-full:  ## Run full API load tests
+	@echo "$(BLUE)→ Running full API load tests...$(NC)"
+	@./scripts/test/test_load_api.sh
+	@echo "$(GREEN)✓ Full load tests complete$(NC)"
+
+test-all: test-unit test-integration test-e2e-journey test-e2e-security test-load  ## Run all tests
+	@echo "$(GREEN)✓ All tests complete$(NC)"
+
+# =============================================================================
+# CODE QUALITY
+# =============================================================================
 
 lint:  ## Run all linters (ruff, black --check, mypy)
 	@echo "$(BLUE)→ Running linters...$(NC)"
@@ -136,9 +174,10 @@ format:  ## Auto-format code with black and ruff
 	@$(VENV_BIN)/black $(SRC_DIRS) $(TESTS_DIR)
 	@echo "$(GREEN)✓ Code formatted$(NC)"
 
-# -----------------------------------------------------------------------------
-# Security
-# -----------------------------------------------------------------------------
+# =============================================================================
+# SECURITY
+# =============================================================================
+
 security: security-python security-terraform  ## Run all security scans
 	@echo "$(GREEN)✓ All security scans complete$(NC)"
 
@@ -157,9 +196,10 @@ security-terraform:  ## Run Terraform security scans (requires tfsec/trivy)
 	@command -v checkov >/dev/null 2>&1 && checkov -d . --quiet || echo "$(YELLOW)⚠ checkov not installed, skipping$(NC)"
 	@echo "$(GREEN)✓ Terraform security scans complete$(NC)"
 
-# -----------------------------------------------------------------------------
-# Terraform
-# -----------------------------------------------------------------------------
+# =============================================================================
+# TERRAFORM
+# =============================================================================
+
 validate:  ## Validate Terraform configuration
 	@echo "$(BLUE)→ Validating Terraform for $(ENV)...$(NC)"
 	@$(TF) validate
@@ -211,12 +251,13 @@ state-list:  ## List resources in Terraform state
 
 state-backup:  ## Backup Terraform state to S3
 	@echo "$(BLUE)→ Backing up Terraform state...$(NC)"
-	@./scripts/backup-state.sh
+	@./scripts/backup-state.sh $(ENV)
 	@echo "$(GREEN)✓ State backed up$(NC)"
 
-# -----------------------------------------------------------------------------
-# Deployment
-# -----------------------------------------------------------------------------
+# =============================================================================
+# DEPLOYMENT
+# =============================================================================
+
 deploy-dev:  ## Deploy to dev environment
 	@$(MAKE) deploy ENV=dev
 
@@ -227,6 +268,7 @@ deploy-prod:  ## Deploy to production environment
 	@echo "$(RED)⚠ PRODUCTION DEPLOYMENT$(NC)"
 	@read -p "Are you sure? [y/N] " confirm && \
 		[ $$confirm = "y" ] || (echo "Aborted." && exit 1)
+	@$(MAKE) state-backup ENV=prod
 	@$(MAKE) deploy ENV=prod
 
 deploy: validate plan apply  ## Full deployment workflow (validate → plan → apply)
@@ -239,12 +281,17 @@ deploy-lambda:  ## Deploy only Lambda functions (faster iteration)
 		-target=aws_lambda_function.worker \
 		-target=aws_lambda_function.teams_bot \
 		-target=aws_lambda_function.identity_tools \
-		-target=aws_lambda_function.tenant_onboarding
+		-target=aws_lambda_function.tenant_onboarding \
+		-target=aws_lambda_function.tenant_provisioning_worker \
+		-target=aws_lambda_function.status_history_snapshot \
+		-target=aws_lambda_function.webhook_notifier \
+		-target=aws_lambda_function.analytics_aggregation
 	@echo "$(GREEN)✓ Lambda functions deployed$(NC)"
 
-# -----------------------------------------------------------------------------
-# Build
-# -----------------------------------------------------------------------------
+# =============================================================================
+# BUILD
+# =============================================================================
+
 build:  ## Build all Lambda deployment packages
 	@echo "$(BLUE)→ Building Lambda packages...$(NC)"
 	@mkdir -p $(BUILD_DIR)
@@ -274,9 +321,10 @@ build-layers-docker:  ## Build Lambda layers using Docker (for native dependenci
 	@$(DOCKER) rmi $(LAYER_BUILDER_IMAGE)
 	@echo "$(GREEN)✓ Layer built: layers/bot-framework-jwt/layer.zip$(NC)"
 
-# -----------------------------------------------------------------------------
-# Docker - LocalStack
-# -----------------------------------------------------------------------------
+# =============================================================================
+# DOCKER - LOCALSTACK
+# =============================================================================
+
 localstack-up:  ## Start LocalStack for local testing
 	@echo "$(BLUE)→ Starting LocalStack...$(NC)"
 	@$(DOCKER_COMPOSE) up -d
@@ -307,9 +355,10 @@ localstack-clean:  ## Clean LocalStack data
 	@rm -rf /tmp/localstack
 	@echo "$(GREEN)✓ LocalStack cleaned$(NC)"
 
-# -----------------------------------------------------------------------------
-# Docker - Development Environment
-# -----------------------------------------------------------------------------
+# =============================================================================
+# DOCKER - DEVELOPMENT ENVIRONMENT
+# =============================================================================
+
 dev-build:  ## Build development environment container
 	@echo "$(BLUE)→ Building development container...$(NC)"
 	@$(DOCKER) build -t msp-dev -f Dockerfile.dev .
@@ -335,9 +384,10 @@ dev-lint:  ## Run linters in development container
 		-v $(PWD):/app \
 		msp-dev make lint
 
-# -----------------------------------------------------------------------------
-# Portal
-# -----------------------------------------------------------------------------
+# =============================================================================
+# PORTAL
+# =============================================================================
+
 portal-deploy:  ## Deploy tenant portal to S3
 	@echo "$(BLUE)→ Deploying tenant portal...$(NC)"
 	@./scripts/deploy-portal.sh
@@ -357,9 +407,10 @@ portal-docker:  ## Run portal in Docker container
 	@echo "$(GREEN)✓ Portal running$(NC)"
 	@echo "  Stop with: docker stop msp-portal"
 
-# -----------------------------------------------------------------------------
-# Tenant Management
-# -----------------------------------------------------------------------------
+# =============================================================================
+# TENANT MANAGEMENT
+# =============================================================================
+
 tenant-list:  ## List all tenants
 	@echo "$(BLUE)→ Listing tenants...$(NC)"
 	@aws dynamodb scan \
@@ -384,9 +435,18 @@ tenant-onboard:  ## Onboard a new tenant (interactive)
 		-H "Content-Type: application/json" \
 		-d "{\"tenant_id\": \"$$tid\", \"display_name\": \"$$name\", \"entra_tenant_id\": \"$$entra\", \"admin_group_id\": \"$$admin\", \"contact_email\": \"$$email\"}" | jq
 
-# -----------------------------------------------------------------------------
-# Logs & Monitoring
-# -----------------------------------------------------------------------------
+tenant-seed:  ## Seed a default test tenant
+	@echo "$(BLUE)→ Seeding default test tenant...$(NC)"
+	@./scripts/seed-default-tenant.sh
+
+tenant-audit:  ## Audit orphaned S3 data
+	@echo "$(BLUE)→ Auditing orphaned S3 data...$(NC)"
+	@./scripts/audit_orphaned_s3.sh $(ENV)
+
+# =============================================================================
+# LOGS & MONITORING
+# =============================================================================
+
 logs:  ## Tail CloudWatch logs for all critical Lambdas
 	@echo "$(BLUE)→ Tailing logs for critical Lambdas...$(NC)"
 	@aws logs tail \
@@ -406,9 +466,17 @@ alarms:  ## Show active CloudWatch alarms
 		--state-value ALARM \
 		--output table
 
-# -----------------------------------------------------------------------------
-# Analytics
-# -----------------------------------------------------------------------------
+dashboards:  ## List CloudWatch dashboards
+	@echo "$(BLUE)→ Listing CloudWatch dashboards...$(NC)"
+	@aws cloudwatch list-dashboards \
+		--dashboard-name-prefix msp-triage-$(ENV) \
+		--query 'DashboardEntries[].DashboardName' \
+		--output table
+
+# =============================================================================
+# ANALYTICS
+# =============================================================================
+
 analytics-run:  ## Manually trigger analytics aggregation
 	@echo "$(BLUE)→ Triggering analytics aggregation...$(NC)"
 	@aws lambda invoke \
@@ -421,9 +489,31 @@ analytics-summary:  ## Show executive summary
 	@curl -s "$$(terraform output -raw tenant_onboarding_api_url)/analytics/executive-summary" \
 		-H "x-api-key: $$(aws apigatewayv2 get-api-key --api-key $$(terraform output -raw onboarding_api_key_id) --include-value --query 'value' --output text)" | jq
 
-# -----------------------------------------------------------------------------
-# Cleanup
-# -----------------------------------------------------------------------------
+analytics-trends:  ## Show health trends
+	@echo "$(BLUE)→ Fetching health trends...$(NC)"
+	@curl -s "$$(terraform output -raw tenant_onboarding_api_url)/analytics/health-trends?days=30" \
+		-H "x-api-key: $$(aws apigatewayv2 get-api-key --api-key $$(terraform output -raw onboarding_api_key_id) --include-value --query 'value' --output text)" | jq
+
+# =============================================================================
+# DEMO
+# =============================================================================
+
+demo:  ## Run full interactive demo
+	@echo "$(BLUE)→ Running interactive demo...$(NC)"
+	@./scripts/demo.sh
+
+demo-quick:  ## Run quick demo (5 minutes)
+	@echo "$(BLUE)→ Running quick demo...$(NC)"
+	@./scripts/demo.sh --quick
+
+demo-section:  ## Run specific demo section (usage: make demo-section SECTION=3)
+	@echo "$(BLUE)→ Running demo section $(SECTION)...$(NC)"
+	@./scripts/demo.sh --section $(SECTION)
+
+# =============================================================================
+# CLEANUP
+# =============================================================================
+
 clean:  ## Remove build artifacts and temporary files
 	@echo "$(BLUE)→ Cleaning build artifacts...$(NC)"
 	@rm -rf $(BUILD_DIR)
@@ -443,14 +533,19 @@ clean-docker:  ## Remove Docker images and containers
 	@$(DOCKER) image prune -f
 	@echo "$(GREEN)✓ Docker cleaned$(NC)"
 
+clean-test:  ## Clean up test data
+	@echo "$(BLUE)→ Cleaning up test data...$(NC)"
+	@./scripts/cleanup_test_data.sh
+
 clean-all: clean clean-docker  ## Clean everything including venv and Docker
 	@rm -rf $(VENV)
 	@$(DOCKER_COMPOSE) down -v 2>/dev/null || true
 	@echo "$(GREEN)✓ Full clean complete$(NC)"
 
-# -----------------------------------------------------------------------------
-# Documentation
-# -----------------------------------------------------------------------------
+# =============================================================================
+# DOCUMENTATION
+# =============================================================================
+
 docs-build:  ## Build documentation site
 	@echo "$(BLUE)→ Building documentation...$(NC)"
 	@$(VENV_BIN)/mkdocs build
@@ -460,9 +555,15 @@ docs-serve:  ## Serve documentation locally
 	@echo "$(BLUE)→ Serving documentation at http://localhost:8000$(NC)"
 	@$(VENV_BIN)/mkdocs serve
 
-# -----------------------------------------------------------------------------
-# Pre-commit
-# -----------------------------------------------------------------------------
+diagrams-render:  ## Render all architecture diagrams
+	@echo "$(BLUE)→ Rendering architecture diagrams...$(NC)"
+	@cd docs/architecture/ieee1471 && ./render-all.sh all
+	@echo "$(GREEN)✓ Diagrams rendered$(NC)"
+
+# =============================================================================
+# PRE-COMMIT
+# =============================================================================
+
 precommit-install:  ## Install pre-commit hooks
 	@echo "$(BLUE)→ Installing pre-commit hooks...$(NC)"
 	@$(VENV_BIN)/pre-commit install
@@ -474,8 +575,38 @@ precommit-run:  ## Run pre-commit on all files
 	@$(VENV_BIN)/pre-commit run --all-files
 	@echo "$(GREEN)✓ Pre-commit complete$(NC)"
 
-# -----------------------------------------------------------------------------
-# Release
-# -----------------------------------------------------------------------------
+# =============================================================================
+# RELEASE
+# =============================================================================
+
 release-check: lint test security validate  ## Run all checks before release
 	@echo "$(GREEN)✓ All release checks passed$(NC)"
+
+release-notes:  ## Generate release notes from git log
+	@echo "$(BLUE)→ Generating release notes...$(NC)"
+	@git log --pretty=format:"* %s (%h)" --no-merges $(shell git describe --tags --abbrev=0)..HEAD
+	@echo ""
+
+# =============================================================================
+# UTILITY
+# =============================================================================
+
+check-prereqs:  ## Check all prerequisites are installed
+	@echo "$(BLUE)→ Checking prerequisites...$(NC)"
+	@for cmd in aws terraform python git jq docker make; do \
+		if command -v $$cmd &> /dev/null; then \
+			echo "  $(GREEN)✓$$NC $$cmd: $$(command -v $$cmd)"; \
+		else \
+			echo "  $(RED)✗$$NC $$cmd: NOT FOUND"; \
+		fi \
+	done
+
+show-outputs:  ## Show all Terraform outputs
+	@$(TF) output -json | jq
+
+show-env:  ## Show current environment configuration
+	@echo "$(BLUE)Environment Configuration:$(NC)"
+	@echo "  ENV:          $(ENV)"
+	@echo "  AWS_PROFILE:  $(AWS_PROFILE)"
+	@echo "  AWS_REGION:   $(AWS_REGION)"
+	@echo "  TF_VARS_FILE: $(TF_VARS_FILE)"
