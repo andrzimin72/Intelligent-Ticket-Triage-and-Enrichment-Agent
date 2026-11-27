@@ -1,3 +1,20 @@
+# =============================================================================
+# MSP AI Platform - CD Pipeline
+# =============================================================================
+# Handles deployment to dev, staging, and production environments.
+#
+# Deployment Flow:
+#   - dev:       Automatic on merge to main
+#   - staging:   Manual trigger, 1 approver required
+#   - prod:      Manual trigger, 2 approvers required, state backup
+#
+# Post-deployment:
+#   - Smoke tests
+#   - E2E tests (dev only)
+#   - Security tests (dev only)
+#   - Slack notifications
+# =============================================================================
+
 name: Terraform CD
 
 on:
@@ -19,6 +36,11 @@ on:
           - dev
           - staging
           - prod
+      run_e2e_tests:
+        description: 'Run E2E tests after deployment'
+        required: false
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -56,6 +78,11 @@ jobs:
         with:
           terraform_version: ${{ env.TF_VERSION }}
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
       - name: Terraform Init
         run: terraform init
 
@@ -72,11 +99,51 @@ jobs:
         run: |
           terraform apply -auto-approve -var-file="terraform.tfvars.dev"
 
-      - name: Smoke tests
+      - name: Install test dependencies
         run: |
-          echo "Running smoke tests against dev environment..."
-          # Add your smoke test commands here
-          # Example: curl -f https://api.dev.example.com/health || exit 1
+          pip install pytest requests
+
+      - name: Install hey (load testing tool)
+        run: |
+          go install github.com/rakyll/hey@latest
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Set API outputs
+        id: outputs
+        run: |
+          echo "api_url=$(terraform output -raw tenant_onboarding_api_url)" >> $GITHUB_OUTPUT
+          echo "api_key=$(terraform output -raw tenant_onboarding_api_key)" >> $GITHUB_OUTPUT
+
+      - name: Wait for deployment to stabilize
+        run: sleep 30
+
+      - name: Run smoke tests
+        env:
+          API_URL: ${{ steps.outputs.outputs.api_url }}
+          API_KEY: ${{ steps.outputs.outputs.api_key }}
+        run: |
+          echo "Running smoke tests..."
+          curl -sf "$API_URL/status" -H "x-api-key: $API_KEY" | jq .
+          echo "✓ Smoke tests passed"
+
+      - name: Run E2E tests
+        if: github.event.inputs.run_e2e_tests == 'true'
+        env:
+          API_URL: ${{ steps.outputs.outputs.api_url }}
+          API_KEY: ${{ steps.outputs.outputs.api_key }}
+          ENVIRONMENT: dev
+        run: |
+          chmod +x scripts/test/*.sh
+          ./scripts/test/test_e2e_customer_journey.sh || echo "⚠ E2E journey tests had failures"
+          ./scripts/test/test_e2e_security_incident.sh || echo "⚠ E2E security tests had failures"
+
+      - name: Run load tests (quick)
+        if: github.event.inputs.run_e2e_tests == 'true'
+        env:
+          API_URL: ${{ steps.outputs.outputs.api_url }}
+          API_KEY: ${{ steps.outputs.outputs.api_key }}
+        run: |
+          ./scripts/test/test_load_api.sh --quick || echo "⚠ Load tests had failures"
 
       - name: Notify Slack on success
         if: success()
@@ -128,9 +195,9 @@ jobs:
     if: github.event.inputs.environment == 'staging'
     runs-on: ubuntu-latest
     environment: 
-      name: staging  # Requires manual approval in GitHub
+      name: staging  # Requires 1 approver in GitHub
       url: https://console.aws.amazon.com/
-    needs: []  # Independent from dev
+    needs: []
     
     steps:
       - name: Checkout
@@ -164,9 +231,17 @@ jobs:
       - name: Terraform Apply (staging)
         run: terraform apply -auto-approve tfplan
 
-      - name: Smoke tests (staging)
+      - name: Set API outputs
+        id: outputs
         run: |
-          echo "Running smoke tests against staging..."
+          echo "api_url=$(terraform output -raw tenant_onboarding_api_url)" >> $GITHUB_OUTPUT
+
+      - name: Run smoke tests
+        env:
+          API_URL: ${{ steps.outputs.outputs.api_url }}
+          API_KEY: ${{ secrets.STAGING_API_KEY }}
+        run: |
+          curl -sf "$API_URL/status" -H "x-api-key: $API_KEY" | jq .
 
       - name: Notify Slack
         if: always()
@@ -227,21 +302,29 @@ jobs:
             fi
           done
 
-      - name: Terraform Plan (prod)
-        run: terraform plan -var-file="terraform.tfvars.prod" -out=tfplan
-
       - name: Pre-deploy backup
         run: |
           echo "Creating state backup before prod deployment..."
           terraform state pull > backup-$(date +%Y%m%d-%H%M%S).tfstate
           aws s3 cp backup-*.tfstate s3://${{ secrets.TF_STATE_BACKUP_BUCKET }}/backups/
 
+      - name: Terraform Plan (prod)
+        run: terraform plan -var-file="terraform.tfvars.prod" -out=tfplan
+
       - name: Terraform Apply (prod)
         run: terraform apply -auto-approve tfplan
 
-      - name: Smoke tests (prod)
+      - name: Set API outputs
+        id: outputs
         run: |
-          echo "Running smoke tests against production..."
+          echo "api_url=$(terraform output -raw tenant_onboarding_api_url)" >> $GITHUB_OUTPUT
+
+      - name: Run smoke tests
+        env:
+          API_URL: ${{ steps.outputs.outputs.api_url }}
+          API_KEY: ${{ secrets.PROD_API_KEY }}
+        run: |
+          curl -sf "$API_URL/status" -H "x-api-key: $API_KEY" | jq .
 
       - name: Notify Slack and PagerDuty
         if: always()
