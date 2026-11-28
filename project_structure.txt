@@ -197,87 +197,87 @@ msp-platform-intelligent_ticket_triage&enrichment_agent/
 ├── 📁 localstack-init/                       # LocalStack initialization
 │   └── 📄 init-aws.sh                        # Creates resources on startup
 │
-├── 📁 src_shared/                            # Shared modules (copied into Lambdas)
+├── 📁 src-shared/                            # Shared modules (copied into Lambdas)
 │   ├── 📄 __init__.py                        # Package init
 │   └── 📄 tenant_resolver.py                 # Multi-tenant resolution logic
 │
-├── 📁 src_orchestrator/                      # Ticket triage orchestrator
+├── 📁 src-orchestrator/                      # Ticket triage orchestrator
 │   ├── 📄 orchestrator.py                    # Routes tickets to appropriate model
 │   └── 📄 requirements.txt
 │
-├── 📁 src_worker/                            # Ticket triage worker
+├── 📁 src-worker/                            # Ticket triage worker
 │   ├── 📄 worker.py                          # Processes tickets with Bedrock
 │   └── 📄 requirements.txt
 │
-├── 📁 src_metrics_reporter/                  # Weekly metrics reporter
+├── 📁 src-metrics-reporter/                  # Weekly metrics reporter
 │   └── 📄 metrics_reporter.py                # Generates metrics reports
 │
-├── 📁 src_feedback_collector/                # Ticket feedback collector
+├── 📁 src_feedback-collector/                # Ticket feedback collector
 │   └── 📄 feedback_collector.py              # Collects technician feedback
 │
-├── 📁 src_feedback_sync/                     # Feedback sync to S3
+├── 📁 src-feedback-sync/                     # Feedback sync to S3
 │   ├── 📄 feedback_sync.py                   # Syncs approved feedback
 │   └── 📄 tenant_resolver.py                 # (copied from src_shared)
 │
-├── 📁 src_customer_digest_orchestrator/      # Customer digest orchestrator
+├── 📁 src-customer-digest-orchestrator/      # Customer digest orchestrator
 │   └── 📄 customer_digest_orchestrator.py    # Schedules daily digests
 │
-├── 📁 src_customer_digest_worker/            # Customer digest worker
+├── 📁 src-customer-digest-worker/            # Customer digest worker
 │   └── 📄 customer_digest_worker.py          # Generates digests (Haiku)
 │
-├── 📁 src_unsubscribe/                       # Digest unsubscribe handler
+├── 📁 src-unsubscribe/                       # Digest unsubscribe handler
 │   └── 📄 unsubscribe.py                     # Handles unsubscribe requests
 │
-├── 📁 src_customer_insights_orchestrator/    # Strategic insights orchestrator
+├── 📁 src-customer-insights-orchestrator/    # Strategic insights orchestrator
 │   └── 📄 customer_insights_orchestrator.py  # Schedules weekly insights
 │
-├── 📁 src_customer_insights_worker/          # Strategic insights worker
+├── 📁 src-customer-insights-worker/          # Strategic insights worker
 │   └── 📄 customer_insights_worker.py        # Generates reports (Sonnet)
 │
-├── 📁 src_customer_insights_unsubscribe/     # Insights unsubscribe handler
+├── 📁 src-customer-insights-unsubscribe/     # Insights unsubscribe handler
 │   └── 📄 customer_insights_unsubscribe.py   # Handles unsubscribe requests
 │
-├── 📁 src_teams_bot/                         # Teams bot adapter
+├── 📁 src-teams-bot/                         # Teams bot adapter
 │   ├── 📄 teams_bot.py                       # Main bot handler
 │   ├── 📄 agent_security.py                  # Security primitives
 │   ├── 📄 jwt_validator.py                   # Bot Framework JWT validation
 │   └── 📄 tenant_resolver.py                 # (copied from src_shared)
 │
-├── 📁 src_identity_tools/                    # Identity operation tools
+├── 📁 src-identity-tools/                    # Identity operation tools
 │   ├── 📄 identity_tools.py                  # Main identity tools handler
 │   ├── 📄 agent_security.py                  # (copied from src_teams_bot)
 │   ├── 📄 password_reset_shared.py           # Password reset shared logic
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_ticket_tools/                     # Ticket operation tools
+├── 📁 src-ticket-tools/                     # Ticket operation tools
 │   ├── 📄 ticket_tools.py                   # Create/check ConnectWise tickets
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_device_tools/                     # Device operation tools
+├── 📁 src-device-tools/                     # Device operation tools
 │   ├── 📄 device_tools.py                   # Query NinjaOne device data
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_calendar_tools/                   # Calendar operation tools
+├── 📁 src-calendar-tools/                   # Calendar operation tools
 │   ├── 📄 calendar_tools.py                 # Calendar operations via Graph API
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_reset_password/                   # Password reset handler
+├── 📁 src-reset-password/                   # Password reset handler
 │   ├── 📄 reset_password.py                 # Main reset handler
 │   ├── 📄 password_reset_shared.py          # (copied from src_identity_tools)
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_agent_feedback/                   # Agent feedback handler
+├── 📁 src-agent-feedback/                   # Agent feedback handler
 │   ├── 📄 agent_feedback.py                 # Handles user feedback
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_agent_feedback_sync/              # Agent feedback sync
+├── 📁 src_agent_feedback-sync/              # Agent feedback sync
 │   ├── 📄 agent_feedback_sync.py            # Syncs feedback to S3
 │   └── 📄 tenant_resolver.py
 │
-├── 📁 src_kb_document_processor/            # KB document processor
+├── 📁 src-kb-document-processor/            # KB document processor
 │   └── 📄 kb_document_processor.py          # Processes uploaded documents
 │
-├── 📁 src_tenant_onboarding/                # Tenant onboarding API
+├── 📁 src-tenant-onboarding/                # Tenant onboarding API
 │   └── 📄 tenant_onboarding.py              # Complete onboarding/status/analytics
 │                                            #   - POST /tenants (create/adopt)
 │                                            #   - DELETE /tenants/{id} (deprovision)
@@ -285,27 +285,27 @@ msp-platform-intelligent_ticket_triage&enrichment_agent/
 │                                            #   - GET /status/* (health)
 │                                            #   - GET /analytics/* (metrics)
 │
-├── 📁 src_tenant_provisioning_worker/       # Tenant provisioning worker
+├── 📁 src-tenant-provisioning-worker/       # Tenant provisioning worker
 │   └── 📄 tenant_provisioning_worker.py     # Creates/deletes Bedrock agents
 │                                            #   - Version-aware S3 purge
 │                                            #   - Multi-bucket cleanup
 │                                            #   - KB vector purge
 │
-├── 📁 src_status_history_snapshot/          # Status history snapshot
+├── 📁 src-status-history-snapshot/          # Status history snapshot
 │   └── 📄 status_history_snapshot.py        # Daily tenant health snapshots
 │                                           #   - Custom rules evaluation
 │                                           #   - Webhook notifier invocation
 │
-├── 📁 src_webhook_notifier/                # Webhook notifier
+├── 📁 src-webhook-notifier/                # Webhook notifier
 │   └── 📄 webhook_notifier.py              # Sends alerts to Slack/Teams/PagerDuty
 │                                           #   - Delivery tracking
 │                                           #   - Cooldown management
 │                                           #   - Platform-specific formatting
 │
-├── 📁 src_custom_health_rules/             # Custom health rules manager
+├── 📁 src-custom-health-rules/             # Custom health rules manager
 │   └── 📄 custom_health_rules.py           # CRUD for tenant-defined rules
 │
-├── 📁 src_tenant_portal_api/               # Tenant portal backend
+├── 📁 src-tenant-portal-api/               # Tenant portal backend
 │   └── 📄 tenant_portal_api.py             # Self-service API endpoints
 │                                           #   - GET/PUT /me
 │                                           #   - GET /me/status, /me/history
@@ -313,7 +313,7 @@ msp-platform-intelligent_ticket_triage&enrichment_agent/
 │                                           #   - CRUD /me/webhooks
 │                                           #   - GET /me/audit
 │
-└── 📁 src_analytics_aggregation/           # Analytics aggregation
+└── 📁 src-analytics-aggregation/           # Analytics aggregation
     └── 📄 analytics_aggregation.py         # Computes health trends, webhook stats,
                                             # rule effectiveness, executive summary
 
