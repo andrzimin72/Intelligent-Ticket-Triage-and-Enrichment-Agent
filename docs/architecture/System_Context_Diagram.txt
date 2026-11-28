@@ -1,0 +1,22 @@
+┌────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                          SYSTEM CONTEXT: MSP AI PLATFORM                                       │
+├────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                │
+│  [Person: End User] ───────(Chats via)────────┐                                                │
+│                                               ▼                                                │
+│  [Person: MSP Admin] ──────(Manages)───────┌────────────────────────┐                          │
+│                                            │                        │                          │
+│  [Person: Leadership] ─────(Reviews)──────▶│    MSP AI PLATFORM     │◀──(REST API)───────────▶ │ [System: ConnectWise PSA]
+│                                            │   (Multi-Tenant AI)    │                          │
+│  [Person: Technician] ─────(Feedback)─────▶│                        │◀──(Graph API)──────────▶ │ [System: Microsoft Entra ID]
+│                                            │                        │                          │
+│  [Person: Customer IT] ────(Receives)────┐ │                        │◀──(Bot Framework)──────▶ │ [System: Microsoft Teams]
+│                                          ▼ │                        │                          │
+│                                            │  [System: Amazon SES]  │◀──(REST API)───────────▶ │ [System: NinjaOne RMM]
+│                                            └────────────────────────┘                          │
+│                                                  ▲                                             │
+│                                                  │ (AWS SDK)                                   │
+│                                                  ▼                                             │
+│                                       [System: Amazon Bedrock]                                 │
+│                                                                                                │
+└────────────────────────────────────────────────────────────────────────────────────────────────┘
