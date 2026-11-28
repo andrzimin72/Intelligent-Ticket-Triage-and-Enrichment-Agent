@@ -1,0 +1,24 @@
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                              CONTAINER ARCHITECTURE: MSP AI PLATFORM (AWS)                             │
+├────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                                        │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────────────────────────────┐  │
+│  │    API Layer         │  │    AI Services       │  │           Core Lambda Functions              │  │
+│  │ • Onboarding API     │  │ • Teams Bot Adapter  │  │ • Identity Tools (Graph API)                 │  │
+│  │ • Password Reset API │  │ • Per-Tenant Agents  │  │ • Ticket Tools (ConnectWise)                 │  │
+│  │ • Tenant Portal API  │  │ • Knowledge Base     │  │ • Device Tools (NinjaOne)                    │  │
+│  │ • Webhooks API       │  │   (Bedrock + AOSS)   │  │ • Calendar Tools (Graph API)                 │  │
+│  └──────────┬───────────┘  └──────────┬───────────┘  │ • Triage Orchestrator & Worker               │  │
+│             │                         │              └──────────────────────┬───────────────────────┘  │
+│             ▼                         ▼                                     ▼                          │
+│  ┌──────────────────────┐  ┌──────────────────────┐  ┌──────────────────────────────────────────────┐  │
+│  │  Customer-Facing     │  │  Multi-Tenant Ops    │  │              Data Stores                     │  │
+│  │ • Digest Orch/Worker │  │ • Provisioning Worker│  │ 🗄️ Tenant Registry, Status, Analytics (DDB)  │  │
+│  │ • Insights Orch/Work │  │ • Status Snapshot    │  │ 🗄️ Audit Log, Feedback, Password Tokens (DDB)│  │
+│  │ • Feedback Sync      │  │ • Webhook Notifier   │  │ 📦 Agent Schemas, KB Documents (S3)          │  │
+│  └──────────┬───────────┘  │ • Analytics Agg.     │  │ 📨 Provisioning & Digest Queues (SQS)        │  │
+│             │              └──────────┬───────────┘  │ 🔐 Tenant-Scoped Secrets (Secrets Manager)   │  │
+│             ▼                         ▼              └──────────────────────────────────────────────┘  │
+│      [System: Amazon SES]       [System: Amazon Bedrock]                                               │
+│                                                                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────────────────────┘
